@@ -3,11 +3,14 @@
     <label :for="id + '-input'" :class="styles.control.label">
       {{ computedLabel }}
     </label>
+    <div v-if="showDescription" :class="styles.control.description">
+      {{ description }}
+    </div>
     <div :class="styles.control.wrapper">
       <slot></slot>
     </div>
-    <div :class="errors ? styles.control.error : styles.control.description">
-      {{ errors ? errors : showDescription ? description : null }}
+    <div v-if="showDescription" :class="styles.control.error">
+      {{ errors }}
     </div>
   </div>
 </template>
