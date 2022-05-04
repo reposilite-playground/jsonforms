@@ -5,6 +5,7 @@
     :isFocused="isFocused"
     :appliedOptions="appliedOptions"
   >
+    <p>Enabled</p>
     <input
       type="checkbox"
       :class="styles.control.input"

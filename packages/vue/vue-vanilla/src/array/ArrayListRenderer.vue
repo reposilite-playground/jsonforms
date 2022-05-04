@@ -11,6 +11,9 @@
       <label :class="styles.arrayList.label">
         {{ control.label }}
       </label>
+      <div v-if="description" :class="style.arrayList.description">
+        {{ description }}
+      </div>
     </legend>
     <div
       v-for="(element, index) in control.data"
@@ -68,6 +71,11 @@ const controlRenderer = defineComponent({
     DispatchRenderer
   },
   props: {
+    description: {
+      required: false as false,
+      type: String,
+      default: undefined
+    },
     ...rendererProps<ControlElement>()
   },
   setup(props: RendererProps<ControlElement>) {

@@ -3,8 +3,7 @@
     <label :for="id + '-input'" :class="styles.control.label">
       {{ computedLabel }}
     </label>
-    <div v-if="showDescription" :class="styles.control.description">
-      {{ description }}
+    <div v-if="showDescription" :class="styles.control.description" v-html="description">
     </div>
     <div :class="styles.control.wrapper">
       <slot></slot>

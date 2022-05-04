@@ -42,6 +42,7 @@ export interface Styles {
     legend?: string;
     addButton?: string;
     label?: string;
+    description?: string;
     itemWrapper?: string;
     noData?: string;
     item?: string;
