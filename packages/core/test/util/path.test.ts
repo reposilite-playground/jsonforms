@@ -35,7 +35,7 @@ test('resolve ', t => {
       }
     }
   };
-  t.deepEqual(Resolve.schema(schema, '#/properties/foo'), {
+  t.deepEqual(Resolve.schema(schema, '#/properties/foo', schema), {
     type: 'integer'
   });
 });
@@ -46,11 +46,38 @@ test('toDataPath ', t => {
 test('toDataPath replace anyOf', t => {
   t.is(toDataPath('/anyOf/1/properties/foo/anyOf/1/properties/bar'), 'foo.bar');
 });
+test('toDataPath replace anyOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/anyOf/1/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple directly nested anyOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/anyOf/1/then/anyOf/0/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple nested properties with anyOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/anyOf/1/properties/foo/anyOf/0/then/properties/bar'), 'foo.bar');
+});
 test('toDataPath replace allOf', t => {
   t.is(toDataPath('/allOf/1/properties/foo/allOf/1/properties/bar'), 'foo.bar');
 });
+test('toDataPath replace allOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/allOf/1/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple directly nested allOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/allOf/1/then/allOf/0/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple nested properties with allOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/allOf/1/properties/foo/allOf/0/then/properties/bar'), 'foo.bar');
+});
 test('toDataPath replace oneOf', t => {
   t.is(toDataPath('/oneOf/1/properties/foo/oneOf/1/properties/bar'), 'foo.bar');
+});
+test('toDataPath replace oneOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/oneOf/1/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple directly nested oneOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/oneOf/1/then/oneOf/0/then/properties/foo'), 'foo');
+});
+test('toDataPath replace multiple nested properties with oneOf in combination with conditional schema compositions', t => {
+  t.is(toDataPath('/oneOf/1/properties/foo/oneOf/0/then/properties/bar'), 'foo.bar');
 });
 test('toDataPath replace all combinators', t => {
   t.is(
@@ -139,10 +166,10 @@ test('resolve $ref', t => {
       }
     }
   };
-  const result = Resolve.schema(schema, '#/properties/foos/items');
+  const result = Resolve.schema(schema, '#/properties/foos/items', schema);
   t.deepEqual(result, { type: 'string' });
 });
-test.failing('resolve $ref simple', t => {
+test('resolve $ref simple', t => {
   const schema: JsonSchema = {
     definitions: {
       foo: {
@@ -167,21 +194,21 @@ test.failing('resolve $ref simple', t => {
       }
     }
   };
-  const result = Resolve.schema(schema, '#/properties/foos/items');
+  const result = Resolve.schema(schema, '#/properties/foos/items', schema);
   t.deepEqual(result, {
     type: 'object',
     properties: {
       bar: {
         type: 'array',
         items: {
-          $ref: '#'
+          $ref: '#/definitions/foo'
         }
       }
     }
   });
   t.not((schema.definitions.foo.properties.bar.items as JsonSchema).$ref, '#');
 });
-test.failing('resolve $ref complicated', t => {
+test('resolve $ref complicated', t => {
   const schema: JsonSchema = {
     definitions: {
       foo: {
@@ -217,21 +244,8 @@ test.failing('resolve $ref complicated', t => {
       }
     }
   };
-  const result = Resolve.schema(schema, '#/properties/foos/items');
+  const result = Resolve.schema(schema, '#/properties/foos/items', schema);
   t.deepEqual(result, {
-    definitions: {
-      foo2: {
-        type: 'object',
-        properties: {
-          bar: {
-            type: 'array',
-            items: {
-              $ref: '#'
-            }
-          }
-        }
-      }
-    },
     type: 'object',
     properties: {
       bar: {

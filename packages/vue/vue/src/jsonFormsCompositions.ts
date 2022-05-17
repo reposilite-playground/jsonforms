@@ -27,9 +27,12 @@ import {
   JsonFormsCellRendererRegistryEntry,
   defaultMapStateToEnumCellProps,
   mapStateToDispatchCellProps,
+  mapStateToOneOfEnumCellProps,
   StatePropsOfJsonFormsRenderer,
   createId,
-  removeId
+  removeId,
+  mapStateToMultiEnumControlProps,
+  mapDispatchToMultiEnumProps
 } from '@jsonforms/core';
 import {
   CompType,
@@ -288,6 +291,16 @@ export const useJsonFormsOneOfControl = (props: ControlProps) => {
   return useControl(props, mapStateToOneOfProps, mapDispatchToControlProps);
 };
 
+/**
+ * Provides bindings for 'Control' elements which resolve to multiple choice enums.
+ *
+ * Access bindings via the provided reactive `control` object.
+ * Dispatch changes via the provided `handleChange` method.
+ */
+export const useJsonFormsMultiEnumControl = (props: ControlProps) => {
+  return useControl(props, mapStateToMultiEnumControlProps, mapDispatchToMultiEnumProps);
+};
+
 export interface LayoutProps extends RendererProps {
   uischema: Layout;
 }
@@ -391,6 +404,22 @@ export const useJsonFormsEnumCell = (props: ControlProps) => {
     props,
     defaultMapStateToEnumCellProps,
     mapDispatchToControlProps
+  );
+  return { cell: control, ...other };
+};
+
+/**
+ * Provides bindings for 'oneOf' enum cell elements. Cells are meant to show simple inputs,
+ * for example without error validation, within a larger structure like tables.
+ *
+ * Access bindings via the provided reactive 'cell' object.
+ * Dispatch changes via the provided `handleChange` method.
+ */
+export const useJsonFormsOneOfEnumCell = (props: ControlProps) => {
+  const { control, ...other } = useControl(
+      props,
+      mapStateToOneOfEnumCellProps,
+      mapDispatchToControlProps
   );
   return { cell: control, ...other };
 };
