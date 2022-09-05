@@ -209,10 +209,10 @@ describe('Material date time control', () => {
       </JsonFormsStateProvider>
     );
     const input = wrapper.find('input').first();
-    (input.getDOMNode() as HTMLInputElement).value ='1961-12-94 20:15'; 
+    (input.getDOMNode() as HTMLInputElement).value ='1961-12-12 20:15'; 
     input.simulate('change', input);
     expect(onChangeData.data.foo).toBe(
-      dayjs('1961-12-94 20:15').format()
+      dayjs('1961-12-12 20:15').format()
     );
   });
 
@@ -386,5 +386,32 @@ describe('Material date time control', () => {
     (input.getDOMNode() as HTMLInputElement).value = '10-12-05 11:22:am'; 
     input.simulate('change', input);
     expect(onChangeData.data.foo).toBe('2005/12/10 11:22 am');
+  });
+
+  it('should call onChange with original input value for invalid date strings', () => {
+    const core = initCore(schema, uischema);
+    const onChangeData: any = {
+      data: undefined
+    };
+    wrapper = mount(
+      <JsonFormsStateProvider initState={{ renderers: materialRenderers, core }}>
+        <TestEmitter
+          onChange={({ data }) => {
+            onChangeData.data = data;
+          }}
+        />
+        <MaterialDateTimeControl
+          schema={schema}
+          uischema={{...uischema}}
+        />
+      </JsonFormsStateProvider>
+    );
+
+    const input = wrapper.find('input').first();
+    expect(input.props().value).toBe('');
+
+    (input.getDOMNode() as HTMLInputElement).value = 'invalid date string'; 
+    input.simulate('change', input);
+    expect(onChangeData.data.foo).toBe('invalid date string');
   });
 });

@@ -9,13 +9,13 @@ Please see the official JSON Forms website, [jsonforms.io](https://jsonforms.io)
 ## Getting started
 
 1. Clone the seed app with `git clone https://github.com/eclipsesource/jsonforms-react-seed.git`
-2. Install dependencies with `npm ci` (or `npm install` when using an older version)
+2. Install dependencies with `npm ci`
 3. Run the app with `npm run start`
 
 For more info about the seed app, please see the corresponding README file of the [seed repo](https://github.com/eclipsesource/jsonforms-react-seed).
 For a more detailed tutorial about the usage of JSON Forms, please see [this tutorial](http://jsonforms.io/docs/tutorial).
 
-## Upgrading to JSON Forms 3.0 Alpha
+## Upgrading to JSON Forms 3.0
 
 With version 3.0 of JSON Forms we removed `json-schema-ref-parser` from the core package.
 This change only affects users of the React variant (Vue and Angular are not affected) and even for React only a few users will need to adjust their code.
@@ -36,6 +36,14 @@ In addition, EclipseSource also offers [professional support](https://jsonforms.
 * Clone this repository
 * Install dependencies: `npm ci`
 * Hook up dependencies between packages: `npm run init`
+
+### VS Code dev container
+
+As an alternative to the first time setup, you can use the provided [VS Code dev container](https://code.visualstudio.com/docs/remote/containers) configured in [devcontainer.json](.devcontainer/devcontainer.json).
+
+* Execute command: `Remote Containers: Reopen in container`
+* Wait until the container is built and loaded
+* First time setup and an initial build of all packages has been executed in the container
 
 ### Build & Testing
 

@@ -32,16 +32,18 @@ import {
   createId,
   removeId,
   mapStateToMultiEnumControlProps,
-  mapDispatchToMultiEnumProps
+  mapDispatchToMultiEnumProps,
+  mapStateToLabelProps,
+  LabelElement
 } from '@jsonforms/core';
 import {
-  CompType,
+  PropType,
   computed,
   inject,
   onBeforeMount,
   onUnmounted,
   ref
-} from '../config';
+} from 'vue';
 
 /**
  * Constructs a props declaration for Vue components which can be used
@@ -55,14 +57,13 @@ import {
 export const rendererProps = <U = UISchemaElement>() => ({
   schema: {
     required: true as true,
-    type: [Object, Boolean] as CompType<
-      JsonSchema,
-      [ObjectConstructor, BooleanConstructor]
+    type: [Object, Boolean] as PropType<
+      JsonSchema
     >
   },
   uischema: {
     required: true as true,
-    type: Object as CompType<U, ObjectConstructor>
+    type: Object as PropType<U>
   },
   path: {
     required: true as true,
@@ -75,15 +76,19 @@ export const rendererProps = <U = UISchemaElement>() => ({
   },
   renderers: {
     required: false,
-    type: Array as CompType<JsonFormsRendererRegistryEntry[], ArrayConstructor>,
+    type: Array as PropType<JsonFormsRendererRegistryEntry[]>,
     default: undefined
   },
   cells: {
     required: false,
-    type: Array as CompType<
-      JsonFormsCellRendererRegistryEntry[],
-      ArrayConstructor
+    type: Array as PropType<
+      JsonFormsCellRendererRegistryEntry[]
     >,
+    default: undefined
+  },
+  config: {
+    required: false,
+    type: Object,
     default: undefined
   }
 });
@@ -107,21 +112,19 @@ export const masterListItemProps = () => ({
   },
   schema: {
     required: true as true,
-    type: [Object, Boolean] as CompType<
-      JsonSchema,
-      [ObjectConstructor, BooleanConstructor]
+    type: [Object, Boolean] as PropType<
+      JsonSchema
     >
   },
   handleSelect: {
     required: false as false,
-    type: Function as CompType<(index: number) => void, FunctionConstructor>,
+    type: Function as PropType<(index: number) => void>,
     default: undefined
   },
   removeItem: {
     required: false as false,
-    type: Function as CompType<
-      (path: string, value: number) => void,
-      FunctionConstructor
+    type: Function as PropType<
+      (path: string, value: number) => void
     >,
     default: undefined
   }
@@ -134,6 +137,7 @@ export interface RendererProps<U = UISchemaElement> {
   enabled?: boolean;
   renderers?: JsonFormsRendererRegistryEntry[];
   cells?: JsonFormsCellRendererRegistryEntry[];
+  config?: any;
 }
 
 export interface ControlProps extends RendererProps {
@@ -167,6 +171,7 @@ export function useControl<R, D, P extends {}>(
 
   const id = ref<string | undefined>(undefined);
   const control = computed(() => ({
+    ...props,
     ...stateMap({ jsonforms }, props),
     id: id.value
   }));
@@ -374,6 +379,16 @@ export const useJsonFormsRenderer = (props: RendererProps) => {
     renderer,
     rootSchema
   };
+};
+
+/**
+ * Provides bindings for 'Label' elements.
+ *
+ * Access bindings via the provided reactive `label` object.
+ */
+export const useJsonFormsLabel = (props: RendererProps<LabelElement>) => {
+  const { control, ...other } = useControl(props, mapStateToLabelProps);
+  return { label: control, ...other };
 };
 
 /**

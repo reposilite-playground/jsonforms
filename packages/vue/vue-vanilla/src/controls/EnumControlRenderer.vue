@@ -35,7 +35,7 @@ import {
   rankWith,
   isEnumControl
 } from '@jsonforms/core';
-import { defineComponent } from '../../config/vue';
+import { defineComponent } from 'vue';
 import { rendererProps, useJsonFormsEnumControl, RendererProps } from '../../config/jsonforms';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { useVanillaControl } from '../util';
@@ -49,7 +49,7 @@ const controlRenderer = defineComponent({
     ...rendererProps<ControlElement>()
   },
   setup(props: RendererProps<ControlElement>) {
-    return useVanillaControl(useJsonFormsEnumControl(props));
+    return useVanillaControl(useJsonFormsEnumControl(props), target => target.selectedIndex === 0 ? undefined : target.value);
   }
 });
 

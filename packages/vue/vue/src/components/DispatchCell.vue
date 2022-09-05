@@ -3,7 +3,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from '../../config';
+import { defineComponent } from 'vue';
 import UnknownRenderer from './UnknownRenderer.vue';
 import maxBy from 'lodash/maxBy';
 import {
@@ -22,12 +22,13 @@ export default defineComponent({
   },
   computed: {
     determinedCell(): any {
+      const testerContext = { rootSchema: this.cell.rootSchema, config: this.config };
       const cell = maxBy(this.cell.cells, r =>
-        r.tester(this.cell.uischema, this.cell.schema, this.cell.rootSchema)
+        r.tester(this.cell.uischema, this.cell.schema, testerContext)
       );
       if (
         cell === undefined ||
-        cell.tester(this.cell.uischema, this.cell.schema, this.cell.rootSchema) === -1
+        cell.tester(this.cell.uischema, this.cell.schema, testerContext) === -1
       ) {
         return UnknownRenderer;
       } else {

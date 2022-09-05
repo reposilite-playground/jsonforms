@@ -54,7 +54,7 @@ import {
   ControlElement,
   schemaTypeIs
 } from '@jsonforms/core';
-import { defineComponent } from '../../config/vue';
+import { defineComponent } from 'vue';
 import {
   DispatchRenderer,
   rendererProps,

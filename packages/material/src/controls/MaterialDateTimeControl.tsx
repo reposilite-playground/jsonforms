@@ -32,13 +32,18 @@ import {
   rankWith
 } from '@jsonforms/core';
 import { withJsonFormsControlProps } from '@jsonforms/react';
-import { FormHelperText, Hidden, TextField } from '@mui/material';
+import { FormHelperText, Hidden } from '@mui/material';
 import {
   DateTimePicker,
   LocalizationProvider 
-} from '@mui/lab';
-import AdapterDayjs from '@mui/lab/AdapterDayjs';
-import { createOnChangeHandler, getData, useFocus } from '../util';
+} from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import {
+  createOnChangeHandler,
+  getData,
+  ResettableTextField,
+  useFocus
+} from '../util';
 
 export const MaterialDateTimeControl = (props: ControlProps) => {
   const [focused, onFocus, onBlur] = useFocus();
@@ -69,6 +74,8 @@ export const MaterialDateTimeControl = (props: ControlProps) => {
   const format = appliedUiSchemaOptions.dateTimeFormat ?? 'YYYY-MM-DD HH:mm';
   const saveFormat = appliedUiSchemaOptions.dateTimeSaveFormat ?? undefined;
 
+  const views = appliedUiSchemaOptions.views ?? ['year', 'day', 'hours', 'minutes'];
+
   const firstFormHelperText = showDescription
     ? description
     : !isValid
@@ -82,37 +89,49 @@ export const MaterialDateTimeControl = (props: ControlProps) => {
     saveFormat
   ),[path, handleChange, saveFormat]);
 
+  const value = getData(data, saveFormat);
+  const valueInInputFormat = value ? value.format(format) : '';
+
   return (
     <Hidden xsUp={!visible}>
       <LocalizationProvider dateAdapter={AdapterDayjs}>
         <DateTimePicker
           label={label}
-          value={getData(data, saveFormat)}
-          clearable
+          value={value}
           onChange={onChange}
           inputFormat={format}
           disableMaskedInput
           ampm={!!appliedUiSchemaOptions.ampm}
-          views={appliedUiSchemaOptions.views}
+          views={views}
           disabled={!enabled}
-          cancelText={appliedUiSchemaOptions.cancelLabel}
-          clearText={appliedUiSchemaOptions.clearLabel}
-          okText={appliedUiSchemaOptions.okLabel}
+          componentsProps={{
+            actionBar: {
+              actions: (variant) => (variant === 'desktop' ? [] : ['clear', 'cancel', 'accept'])
+            }
+          }}
           renderInput={params => (
-            <TextField 
+            <ResettableTextField 
               {...params}
+              rawValue={data}
+              dayjsValueIsValid={value !== null}
+              valueInInputFormat={valueInInputFormat}
+              focused={focused}
               id={id + '-input'}
               required={required && !appliedUiSchemaOptions.hideRequiredAsterisk}
               autoFocus={appliedUiSchemaOptions.focus}
               error={!isValid}
               fullWidth={!appliedUiSchemaOptions.trim}
-              inputProps={{ ...params.inputProps, type: 'text' }}
+              inputProps={{
+                ...params.inputProps,
+                type: 'text',
+              }}
               InputLabelProps={data ? { shrink: true } : undefined}
               onFocus={onFocus}
               onBlur={onBlur}
               variant={'standard'}
             />
-          )}
+          )
+          }
         />
         <FormHelperText error={!isValid && !showDescription}>
           {firstFormHelperText}

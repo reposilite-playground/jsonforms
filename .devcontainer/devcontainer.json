@@ -4,16 +4,17 @@
 	"name": "Node.js",
 	"build": {
 		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Node version: 12, 14, 16
+		// Update 'VARIANT' to pick a Node version: 14, 16
 		"args": {
-			"VARIANT": "12"
+			"VARIANT": "14"
 		}
 	},
 	// Set *default* container specific settings.json values on container create.
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"esbenp.prettier-vscode",
-		"ms-vscode.vscode-typescript-tslint-plugin"
+		"ms-vscode.vscode-typescript-tslint-plugin",
+		"vue.volar"
 	],
 	"settings": {
 		"editor.formatOnSave": false,

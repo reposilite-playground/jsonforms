@@ -49,6 +49,7 @@ import * as generateSchema from './examples/generate';
 import * as generateUISchema from './examples/generateUI';
 import * as layout from './examples/layout';
 import * as person from './examples/person';
+import * as issue_1884 from './examples/1884';
 import * as rule from './examples/rule';
 import * as ruleInheritance from './examples/ruleInheritance';
 import * as config from './examples/config';
@@ -59,6 +60,8 @@ import * as listWithDetail from './examples/list-with-detail';
 import * as listWithDetailRegistered from './examples/list-with-detail-registered';
 import * as object from './examples/object';
 import * as i18n from './examples/i18n';
+import * as issue_1948 from './examples/1948';
+import * as issue_1996 from './examples/1996';
 import * as issue_1169 from './examples/1169';
 import * as issue_1220 from './examples/1220';
 import * as issue_1253 from './examples/1253';
@@ -76,12 +79,15 @@ import * as readonly from './examples/readonly';
 import * as bug_1779 from './examples/1779';
 import * as bug_1645 from './examples/1645';
 import * as conditionalSchemaComposition from './examples/conditional-schema-compositions';
+import * as additionalErrors from './examples/additional-errors';
 export * from './register';
 export * from './example';
 
 import * as ifThenElse from './examples/if_then_else';
 
 export {
+  issue_1948,
+  issue_1996,
   defaultExample,
   allOf,
   anyOf,
@@ -136,5 +142,7 @@ export {
   readonly,
   bug_1779,
   bug_1645,
-  conditionalSchemaComposition
+  conditionalSchemaComposition,
+  additionalErrors,
+  issue_1884,
 };

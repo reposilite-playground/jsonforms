@@ -27,13 +27,13 @@ import {
   rankWith,
   isDateTimeControl
 } from '@jsonforms/core';
-import { defineComponent } from '../../config/vue';
+import { defineComponent } from 'vue';
 import { rendererProps, useJsonFormsControl, RendererProps } from '../../config/jsonforms';
 import { default as ControlWrapper } from './ControlWrapper.vue';
 import { useVanillaControl } from '../util';
 
 const toISOString = (inputDateTime: string) => {
-  return inputDateTime === '' ? '' : inputDateTime + ':00.000Z';
+  return inputDateTime === '' ? undefined : inputDateTime + ':00.000Z';
 };
 
 const controlRenderer = defineComponent({

@@ -377,8 +377,35 @@ describe('Material time control', () => {
     const input = wrapper.find('input').first();
     expect(input.props().value).toBe('02-13');
 
-    (input.getDOMNode() as HTMLInputElement).value = '12:01';
+    (input.getDOMNode() as HTMLInputElement).value = '12-01';
     input.simulate('change', input);
     expect(onChangeData.data.foo).toBe('1//12 am');
+  });
+
+  it('should call onChange with original input value for invalid date strings', () => {
+    const core = initCore(schema, uischema);
+    const onChangeData: any = {
+      data: undefined
+    };
+    wrapper = mount(
+      <JsonFormsStateProvider initState={{ renderers: materialRenderers, core }}>
+        <TestEmitter
+          onChange={({ data }) => {
+            onChangeData.data = data;
+          }}
+        />
+        <MaterialTimeControl
+          schema={schema}
+          uischema={{...uischema}}
+        />
+      </JsonFormsStateProvider>
+    );
+
+    const input = wrapper.find('input').first();
+    expect(input.props().value).toBe('');
+
+    (input.getDOMNode() as HTMLInputElement).value = 'invalid date string'; 
+    input.simulate('change', input);
+    expect(onChangeData.data.foo).toBe('invalid date string');
   });
 });

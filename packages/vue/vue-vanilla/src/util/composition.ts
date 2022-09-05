@@ -1,5 +1,5 @@
 import { useStyles } from '../styles';
-import { computed, ref } from '../../config/vue';
+import { computed, ref } from 'vue';
 import merge from 'lodash/merge';
 import cloneDeep from 'lodash/cloneDeep';
 import {
@@ -72,6 +72,24 @@ export const useVanillaLayout = <I extends { layout: any }>(input: I) => {
 };
 
 /**
+ * Adds styles and appliedOptions
+ */
+export const useVanillaLabel = <I extends { label: any }>(input: I) => {
+  const appliedOptions = computed(() =>
+    merge(
+      {},
+      cloneDeep(input.label.value.config),
+      cloneDeep(input.label.value.uischema.options)
+    )
+  );
+  return {
+    ...input,
+    styles: useStyles(input.label.value.uischema),
+    appliedOptions
+  };
+};
+
+/**
  * Adds styles, appliedOptions and childUiSchema
  */
 export const useVanillaArrayControl = <I extends { control: any }>(
@@ -90,7 +108,10 @@ export const useVanillaArrayControl = <I extends { control: any }>(
       input.control.value.uischemas,
       input.control.value.schema,
       input.control.value.uischema.scope,
-      input.control.value.path
+      input.control.value.path,
+      undefined,
+      input.control.value.uischema,
+      input.control.value.rootSchema
     )
   );
 

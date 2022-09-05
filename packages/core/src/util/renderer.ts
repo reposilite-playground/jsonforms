@@ -24,7 +24,7 @@
 */
 
 import get from 'lodash/get';
-import { ControlElement, JsonSchema, UISchemaElement } from '../models';
+import { ControlElement, isLabelable, JsonSchema, LabelElement, UISchemaElement } from '../models';
 import find from 'lodash/find';
 import {
   getUISchemas,
@@ -32,7 +32,6 @@ import {
   JsonFormsRendererRegistryEntry,
 } from '../reducers';
 import {
-  findUISchema,
   getAjv,
   getCells,
   getConfig,
@@ -57,7 +56,7 @@ import { composePaths, composeWithUi } from './path';
 import { CoreActions, update } from '../actions';
 import { ErrorObject } from 'ajv';
 import { JsonFormsState } from '../store';
-import { getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, Translator } from '../i18n';
+import { deriveLabelForUISchemaElement, getCombinedErrorMessage, getI18nKey, getI18nKeyPrefix, getI18nKeyPrefixBySchema, Translator } from '../i18n';
 
 const isRequired = (
   schema: JsonSchema,
@@ -255,6 +254,10 @@ export interface OwnPropsOfControl extends OwnPropsOfRenderer {
   uischema?: ControlElement;
 }
 
+export interface OwnPropsOfLabel extends OwnPropsOfRenderer {
+  uischema?: LabelElement;
+}
+
 export interface OwnPropsOfEnum {
   options?: EnumOption[];
 }
@@ -398,6 +401,7 @@ export interface StatePropsOfLayout extends StatePropsOfRenderer {
    * Direction for the layout to flow
    */
   direction: 'row' | 'column';
+  label?: string;
 }
 
 export interface LayoutProps extends StatePropsOfLayout {}
@@ -465,8 +469,8 @@ export const mapStateToControlProps = (
   const schema = resolvedSchema ?? rootSchema;
   const t = getTranslator()(state);
   const te = getErrorTranslator()(state);
-  const i18nLabel = t(getI18nKey(schema, uischema, path, 'label'), label);
-  const i18nDescription = t(getI18nKey(schema, uischema, path, 'description'), description);
+  const i18nLabel = t(getI18nKey(schema, uischema, path, 'label'), label, {schema, uischema, path, errors} );
+  const i18nDescription = t(getI18nKey(schema, uischema, path, 'description'), description, {schema, uischema, path, errors});
   const i18nErrorMessage = getCombinedErrorMessage(errors, te, t, schema, uischema, path);
 
   return {
@@ -857,6 +861,10 @@ export const mapStateToLayoutProps = (
     config
   );
 
+  // some layouts have labels which might need to be translated
+  const t = getTranslator()(state);
+  const label = isLabelable(uischema) ? deriveLabelForUISchemaElement(uischema, t) : undefined;
+
   return {
     ...layoutDefaultProps,
     renderers: ownProps.renderers || getRenderers(state),
@@ -868,7 +876,8 @@ export const mapStateToLayoutProps = (
     uischema: ownProps.uischema,
     schema: ownProps.schema,
     direction: ownProps.direction ?? getDirection(uischema),
-    config
+    config,
+    label
   };
 };
 
@@ -879,6 +888,7 @@ export interface OwnPropsOfJsonFormsRenderer extends OwnPropsOfRenderer {}
 export interface StatePropsOfJsonFormsRenderer
   extends OwnPropsOfJsonFormsRenderer {
   rootSchema: JsonSchema;
+  config: any;
 }
 
 export interface JsonFormsProps extends StatePropsOfJsonFormsRenderer {}
@@ -887,27 +897,15 @@ export const mapStateToJsonFormsRendererProps = (
   state: JsonFormsState,
   ownProps: OwnPropsOfJsonFormsRenderer
 ): StatePropsOfJsonFormsRenderer => {
-  let uischema = ownProps.uischema;
-  if (uischema === undefined) {
-    if (ownProps.schema) {
-      uischema = findUISchema(
-        state.jsonforms.uischemas,
-        ownProps.schema,
-        undefined,
-        ownProps.path
-      );
-    } else {
-      uischema = getUiSchema(state);
-    }
-  }
-
   return {
-    renderers: ownProps.renderers || get(state.jsonforms, 'renderers') || [],
-    cells: ownProps.cells || get(state.jsonforms, 'cells') || [],
+    renderers: ownProps.renderers || get(state.jsonforms, 'renderers'),
+    cells: ownProps.cells || get(state.jsonforms, 'cells'),
     schema: ownProps.schema || getSchema(state),
     rootSchema: getSchema(state),
-    uischema: uischema,
-    path: ownProps.path
+    uischema: ownProps.uischema || getUiSchema(state),
+    path: ownProps.path,
+    enabled: ownProps.enabled,
+    config: getConfig(state)
   };
 };
 
@@ -930,9 +928,9 @@ export const mapStateToCombinatorRendererProps = (
   ownProps: OwnPropsOfControl,
   keyword: CombinatorKeyword
 ): StatePropsOfCombinator => {
-  const { data, schema, ...props } = mapStateToControlProps(
+  const { data, schema, rootSchema, ...props } = mapStateToControlProps(
     state,
-    ownProps
+    ownProps,
   );
 
   const ajv = state.jsonforms.core.ajv;
@@ -956,7 +954,12 @@ export const mapStateToCombinatorRendererProps = (
   // element
   for (let i = 0; i < schema[keyword]?.length; i++) {
     try {
-      const valFn = ajv.compile(schema[keyword][i]);
+      let _schema = schema[keyword][i];
+      if(_schema.$ref){
+        _schema = Resolve.schema( rootSchema, _schema.$ref, rootSchema
+        );
+      }
+      const valFn = ajv.compile(_schema);
       valFn(data);
       if (dataIsValid(valFn.errors)) {
         indexOfFittingSchema = i;
@@ -970,6 +973,7 @@ export const mapStateToCombinatorRendererProps = (
   return {
     data,
     schema,
+    rootSchema,
     ...props,
     indexOfFittingSchema,
     uischemas: getUISchemas(state)
@@ -1061,3 +1065,35 @@ export const mapStateToArrayLayoutProps = (
 export interface ArrayLayoutProps
   extends StatePropsOfArrayLayout,
     DispatchPropsOfArrayControl {}
+
+export interface StatePropsOfLabel extends StatePropsOfRenderer {
+  text?: string;
+}
+export interface LabelProps extends StatePropsOfLabel{
+}
+
+export const mapStateToLabelProps = (
+  state: JsonFormsState,
+  props: OwnPropsOfLabel
+) => {
+  const { uischema } = props;
+
+  const visible: boolean =
+    props.visible === undefined || hasShowRule(uischema)
+      ? isVisible(props.uischema, getData(state), props.path, getAjv(state))
+      : props.visible;
+
+  const text = uischema.text;
+  const t = getTranslator()(state);
+  const i18nKeyPrefix = getI18nKeyPrefixBySchema(undefined, uischema);
+  const i18nKey = i18nKeyPrefix ? `${i18nKeyPrefix}.text` : text ?? '';
+  const i18nText = t(i18nKey, text, { uischema });
+  
+  return {
+    text: i18nText,
+    visible,
+    config: getConfig(state),
+    renderers: props.renderers || getRenderers(state),
+    cells: props.cells || getCells(state),
+  }
+}

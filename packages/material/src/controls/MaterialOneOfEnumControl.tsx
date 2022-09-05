@@ -30,19 +30,26 @@ import {
   RankedTester,
   rankWith,
 } from '@jsonforms/core';
-import { withJsonFormsOneOfEnumProps } from '@jsonforms/react';
+import { TranslateProps, withJsonFormsOneOfEnumProps, withTranslateProps } from '@jsonforms/react';
 import { MuiAutocomplete, WithOptionLabel } from '../mui-controls/MuiAutocomplete';
 import { MuiSelect } from '../mui-controls/MuiSelect';
 import { MaterialInputControl } from '../controls/MaterialInputControl';
 import merge from 'lodash/merge';
 
-export const MaterialOneOfEnumControl = (props: ControlProps & OwnPropsOfEnum & WithOptionLabel) => {
-  const {config, uischema} = props;
+export const MaterialOneOfEnumControl = (props: ControlProps & OwnPropsOfEnum & WithOptionLabel & TranslateProps) => {
+  const {config, uischema, errors} = props;
   const appliedUiSchemaOptions = merge({}, config, uischema.options);
+  const isValid = errors.length === 0;
+
   return (
+    appliedUiSchemaOptions.autocomplete === false ?
     <MaterialInputControl
       {...props}
-      input={appliedUiSchemaOptions.autocomplete === false ? MuiSelect : MuiAutocomplete}
+      input={MuiSelect}
+    />:
+    <MuiAutocomplete
+      {...props}
+      isValid={isValid}
     />
   );
 };
@@ -52,4 +59,5 @@ export const materialOneOfEnumControlTester: RankedTester = rankWith(
   isOneOfEnumControl
 );
 
-export default withJsonFormsOneOfEnumProps(MaterialOneOfEnumControl);
+// HOC order can be reversed with https://github.com/eclipsesource/jsonforms/issues/1987
+export default withJsonFormsOneOfEnumProps(withTranslateProps(React.memo(MaterialOneOfEnumControl)), false);

@@ -27,6 +27,7 @@ import { combineReducers, createStore } from 'redux';
 import { Provider } from 'react-redux';
 import type {
   ControlElement,
+  ControlProps,
   DispatchCellProps,
   JsonFormsState,
   JsonFormsStore,
@@ -303,6 +304,7 @@ test('render schema with $ref', () => {
       schema={schemaWithRef}
       renderers={renderers}
       rootSchema={schemaWithRef}
+      config={undefined}
     />
   );
 
@@ -359,6 +361,7 @@ test('updates schema with ref', () => {
       schema={fixture.schema}
       renderers={renderers}
       rootSchema={resolvedSchema}
+      config={undefined}
     />
   );
   expect(wrapper.find(CustomRenderer1).length).toBe(1);
@@ -988,4 +991,89 @@ test('JsonForms should update if data prop is updated', () => {
   wrapper.setProps({ data: { foo: 'Another name' } });
   wrapper.update();
   expect(wrapper.props().data.foo).toBe('Another name');
+});
+
+test('JsonForms should use additionalErrors if provided', () => {
+
+  const CustomRendererWithError: StatelessRenderer<ControlProps> = ({errors}) => { 
+    return (<h5>{errors}</h5>) 
+  };
+
+  const renderers = [
+    {
+      tester: () => 1000,
+      renderer: withJsonFormsControlProps(CustomRendererWithError)
+    }
+  ];
+  const additionalErrors = [{
+    instancePath: '',
+    dataPath: '',
+    schemaPath: '#/required',
+    keyword: 'required',
+    params: {
+      missingProperty: 'foo'
+    },
+    message: 'Lorem ipsum'
+  }];
+  const wrapper = mount(
+    <JsonForms
+      data={fixture.data}
+      uischema={fixture.uischema}
+      schema={fixture.schema}
+      renderers={renderers}
+      additionalErrors={additionalErrors}
+    />
+  );
+  expect(wrapper.find('h5').text()).toBe('Lorem ipsum');
+  wrapper.unmount();
+});
+
+test('JsonForms should use react to additionalErrors update', () => {
+
+  const CustomRendererWithError: StatelessRenderer<ControlProps> = ({ errors }) => {
+    return (<h5>{errors}</h5>)
+  };
+
+  const renderers = [
+    {
+      tester: () => 1000,
+      renderer: withJsonFormsControlProps(CustomRendererWithError)
+    }
+  ];
+  const additionalErrors = [{
+    instancePath: '',
+    dataPath: '',
+    schemaPath: '#/required',
+    keyword: 'required',
+    params: {
+      missingProperty: 'foo'
+    },
+    message: 'Lorem ipsum'
+  }];
+  const wrapper = mount(
+    <JsonForms
+      data={fixture.data}
+      uischema={fixture.uischema}
+      schema={fixture.schema}
+      renderers={renderers}
+      additionalErrors={additionalErrors}
+    />
+  );
+  expect(wrapper.find('h5').text()).toBe('Lorem ipsum');
+
+  wrapper.setProps({
+    additionalErrors: [{
+      instancePath: '',
+      dataPath: '',
+      schemaPath: '#/required',
+      keyword: 'required',
+      params: {
+        missingProperty: 'foo'
+      },
+      message: 'Foobar'
+    }]
+  });
+  wrapper.update();
+  expect(wrapper.find('h5').text()).toBe('Foobar');
+  wrapper.unmount();
 });
