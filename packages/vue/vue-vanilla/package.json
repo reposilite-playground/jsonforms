@@ -1,5 +1,5 @@
 {
-  "name": "@jsonforms/vue-vanilla",
+  "name": "@dzikoysk/vue-vanilla",
   "version": "3.0.0-rc.1",
   "description": "Vue 3 Vanilla renderers for JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
