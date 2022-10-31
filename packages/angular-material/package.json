@@ -1,6 +1,6 @@
 {
   "name": "@jsonforms/angular-material",
-  "version": "3.0.0-rc.1",
+  "version": "3.0.0",
   "description": "Material Renderer Set for Angular module of JSON Forms",
   "repository": "https://github.com/eclipsesource/jsonforms",
   "bugs": "https://github.com/eclipsesource/jsonforms/issues",
@@ -63,10 +63,10 @@
     "@angular/material": "^12.0.0 || ^13.0.0 || ^14.0.0",
     "@angular/platform-browser": "^12.0.0 || ^13.0.0 || ^14.0.0",
     "@angular/router": "^12.0.0 || ^13.0.0 || ^14.0.0",
-    "@jsonforms/angular": "3.0.0-rc.1",
-    "@jsonforms/core": "3.0.0-rc.1",
+    "@jsonforms/angular": "3.0.0",
+    "@jsonforms/core": "3.0.0",
     "core-js": "^2.5.3",
-    "rxjs": "^6.4.0"
+    "rxjs": "^6.5.3 || ^7.4.0"
   },
   "dependencies": {
     "hammerjs": "2.0.8"
@@ -84,10 +84,10 @@
     "@angular/platform-browser": "^12.0.0",
     "@angular/platform-browser-dynamic": "^12.0.0",
     "@angular/router": "^12.0.0",
-    "@jsonforms/angular": "^3.0.0-rc.1",
-    "@jsonforms/angular-test": "^3.0.0-rc.1",
-    "@jsonforms/core": "^3.0.0-rc.1",
-    "@jsonforms/examples": "^3.0.0-rc.1",
+    "@jsonforms/angular": "^3.0.0",
+    "@jsonforms/angular-test": "^3.0.0",
+    "@jsonforms/core": "^3.0.0",
+    "@jsonforms/examples": "^3.0.0",
     "@types/node": "^10.10.0",
     "angular2-template-loader": "^0.6.2",
     "copy-webpack-plugin": "^5.0.5",
@@ -108,7 +108,7 @@
     "protractor": "^5.4.1",
     "request": "^2.88.0",
     "rimraf": "^3.0.2",
-    "rxjs": "^6.4.0",
+    "rxjs": "^6.5.3",
     "ts-loader": "^6.2.1",
     "tslint": "^5.20.1",
     "typedoc": "^0.19.2",
