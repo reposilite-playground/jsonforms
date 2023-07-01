@@ -24,10 +24,11 @@
 */
 
 import find from 'lodash/find';
+import { JsonSchema } from '../models';
 
 export const getFirstPrimitiveProp = (schema: any) => {
   if (schema.properties) {
-    return find(Object.keys(schema.properties), propName => {
+    return find(Object.keys(schema.properties), (propName) => {
       const prop = schema.properties[propName];
       return (
         prop.type === 'string' ||
@@ -38,3 +39,12 @@ export const getFirstPrimitiveProp = (schema: any) => {
   }
   return undefined;
 };
+
+/**
+ * Tests whether the schema has an enum based on oneOf.
+ */
+export const isOneOfEnumSchema = (schema: JsonSchema) =>
+  !!schema &&
+  Object.prototype.hasOwnProperty.call(schema, 'oneOf') &&
+  schema.oneOf &&
+  (schema.oneOf as JsonSchema[]).every((s) => s.const !== undefined);

@@ -35,21 +35,25 @@ export const schema = {
         properties: {
           date: {
             type: 'string',
-            format: 'date'
+            format: 'date',
           },
           message: {
             type: 'string',
-            maxLength: 5
+            maxLength: 5,
           },
           enum: {
             type: 'string',
-            const: 'foo'
-          }
-        }
-      }
+            const: 'foo',
+          },
+          oneOfEnum: {
+            type: 'string',
+            oneOf: [{ const: 'foo' }, { const: 'bar' }],
+          },
+        },
+      },
     },
-    foo:{type:'string'}
-  }
+    foo: { type: 'string' },
+  },
 };
 
 export const uischema = {
@@ -57,13 +61,16 @@ export const uischema = {
   elements: [
     {
       type: 'Control',
-      scope: '#/properties/foo'
+      scope: '#/properties/foo',
     },
     {
       type: 'Control',
-      scope: '#/properties/comments'
-    }
-  ]
+      scope: '#/properties/comments',
+      options: {
+        showSortButtons: false,
+      },
+    },
+  ],
 };
 
 export const uischemaWithSorting = {
@@ -71,49 +78,50 @@ export const uischemaWithSorting = {
   elements: [
     {
       type: 'Control',
-      scope: '#/properties/foo'
+      scope: '#/properties/foo',
     },
     {
       type: 'Control',
       scope: '#/properties/comments',
       options: {
-        showSortButtons: true
-      }
-    }
-  ]
+        showSortButtons: false,
+      },
+    },
+  ],
 };
 
 export const data = {
   comments: [
     {
       date: new Date(2001, 8, 11).toISOString().substr(0, 10),
-      message: 'This is an example message'
+      message: 'This is an example message',
     },
     {
       date: new Date().toISOString().substr(0, 10),
-      message: 'Get ready for booohay'
-    }
-  ]
+      message: 'Get ready for booohay',
+      oneOfEnum: 'test',
+    },
+  ],
 };
 
 const actions = [
   {
-    'label': 'Enable Sorting',
-    'apply': (props: StateProps) => {
+    label: 'Enable Sorting',
+    apply: (props: StateProps) => {
       return {
         ...props,
-        uischema: uischemaWithSorting
-      }
-    }
+        uischema: uischemaWithSorting,
+      };
+    },
   },
   {
-    'label': 'Disable Sorting',
-    'apply': (props: StateProps) => {
+    label: 'Disable Sorting',
+    apply: (props: StateProps) => {
       return {
         ...props,
-        uischema: uischema
-      }
-    }
+        uischema: uischema,
+      };
+    },
   },
 ];
 
@@ -125,8 +133,8 @@ registerExamples([
     schema,
     uischema,
     config: {
-      withSort: uischemaWithSorting
+      withSort: uischemaWithSorting,
     },
-    actions
-  }
+    actions,
+  },
 ]);

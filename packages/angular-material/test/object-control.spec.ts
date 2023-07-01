@@ -39,24 +39,25 @@ import {
   TextControlRenderer,
   TextControlRendererTester,
   VerticalLayoutRenderer,
-  verticalLayoutTester
+  verticalLayoutTester,
 } from '../src';
 import {
   ObjectControlRenderer,
-  ObjectControlRendererTester
+  ObjectControlRendererTester,
 } from '../src/other/object.renderer';
 import { getJsonFormsService } from '@jsonforms/angular-test';
+import { LayoutChildrenRenderPropsPipe } from '../src/layouts/layout.renderer';
 
 const uischema1: ControlElement = { type: 'Control', scope: '#' };
 const uischema2: ControlElement = {
   type: 'Control',
-  scope: '#/properties/foo'
+  scope: '#/properties/foo',
 };
 const schema1 = {
   type: 'object',
   properties: {
-    foo: { type: 'string' }
-  }
+    foo: { type: 'string' },
+  },
 };
 const schema2 = {
   type: 'object',
@@ -64,22 +65,22 @@ const schema2 = {
     foo: {
       type: 'object',
       properties: {
-        foo_1: { type: 'string' }
-      }
+        foo_1: { type: 'string' },
+      },
     },
     bar: {
       type: 'object',
       properties: {
-        bar_1: { type: 'string' }
-      }
-    }
-  }
+        bar_1: { type: 'string' },
+      },
+    },
+  },
 };
 const renderers = [
   { tester: TextControlRendererTester, renderer: TextControlRenderer },
   { tester: verticalLayoutTester, renderer: VerticalLayoutRenderer },
   { tester: groupLayoutTester, renderer: GroupLayoutRenderer },
-  { tester: ObjectControlRendererTester, renderer: ObjectControlRenderer }
+  { tester: ObjectControlRendererTester, renderer: ObjectControlRenderer },
 ];
 
 describe('Object Control tester', () => {
@@ -98,7 +99,8 @@ describe('Object Control', () => {
         ObjectControlRenderer,
         TextControlRenderer,
         VerticalLayoutRenderer,
-        GroupLayoutRenderer
+        GroupLayoutRenderer,
+        LayoutChildrenRenderPropsPipe,
       ],
       imports: [
         CommonModule,
@@ -108,9 +110,9 @@ describe('Object Control', () => {
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
-        FlexLayoutModule
+        FlexLayoutModule,
       ],
-      providers: [JsonFormsAngularService]
+      providers: [JsonFormsAngularService],
     })
       .overrideModule(BrowserDynamicTestingModule, {
         set: {
@@ -118,9 +120,9 @@ describe('Object Control', () => {
             TextControlRenderer,
             VerticalLayoutRenderer,
             GroupLayoutRenderer,
-            ObjectControlRenderer
-          ]
-        }
+            ObjectControlRenderer,
+          ],
+        },
       })
       .compileComponents();
 
@@ -133,14 +135,12 @@ describe('Object Control', () => {
     component.schema = schema2;
 
     getJsonFormsService(component).init({
-
       renderers: renderers,
       core: {
         data: {},
         schema: schema2,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
     fixture.detectChanges();
     component.ngOnInit();
@@ -154,19 +154,15 @@ describe('Object Control', () => {
   }));
 
   it('render all elements', async(() => {
-
     component.uischema = uischema1;
     component.schema = schema2;
 
     getJsonFormsService(component).init({
-
-
       core: {
         data: {},
         schema: schema2,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
     getJsonFormsService(component).registerRenderers(renderers);
 
@@ -182,14 +178,11 @@ describe('Object Control', () => {
     component.schema = schema2;
 
     getJsonFormsService(component).init({
-
-
       core: {
         data: {},
         schema: schema2,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
     getJsonFormsService(component).registerRenderers(renderers);
     fixture.detectChanges();
@@ -200,19 +193,16 @@ describe('Object Control', () => {
   }));
 
   xit('can be disabled', async(() => {
-
     component.uischema = uischema1;
     component.schema = schema1;
     component.disabled = true;
 
     getJsonFormsService(component).init({
-
       core: {
         data: {},
         schema: schema1,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
     getJsonFormsService(component).registerRenderers(renderers);
     fixture.detectChanges();
@@ -222,7 +212,6 @@ describe('Object Control', () => {
     });
   }));
   xit('should be enabled by default', async(() => {
-
     component.uischema = uischema1;
     component.schema = schema1;
 
@@ -230,9 +219,8 @@ describe('Object Control', () => {
       core: {
         data: {},
         schema: schema1,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
     getJsonFormsService(component).registerRenderers(renderers);
     component.ngOnInit();

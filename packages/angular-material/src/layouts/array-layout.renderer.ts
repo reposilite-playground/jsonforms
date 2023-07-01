@@ -26,11 +26,15 @@ import {
   ChangeDetectionStrategy,
   Component,
   OnDestroy,
-  OnInit
+  OnInit,
 } from '@angular/core';
-import { JsonFormsAngularService, JsonFormsAbstractControl } from '@jsonforms/angular';
+import {
+  JsonFormsAngularService,
+  JsonFormsAbstractControl,
+} from '@jsonforms/angular';
 import {
   ArrayLayoutProps,
+  ArrayTranslations,
   createDefaultValue,
   findUISchema,
   isObjectArrayWithNesting,
@@ -45,7 +49,7 @@ import {
   StatePropsOfArrayLayout,
   UISchemaElement,
   UISchemaTester,
-  unsetReadonly
+  unsetReadonly,
 } from '@jsonforms/core';
 
 @Component({
@@ -58,31 +62,37 @@ import {
         <mat-icon
           *ngIf="this.error?.length"
           color="warn"
-          matBadge="{{ this.error.split('\n').length }}"
+          matBadge="{{
+            this.error.split(
+              '
+'
+            ).length
+          }}"
           matBadgeColor="warn"
           matTooltip="{{ this.error }}"
           matTooltipClass="error-message-tooltip"
-          >
-            error_outline
+        >
+          error_outline
         </mat-icon>
         <span fxFlex></span>
         <button
           mat-button
-          matTooltip="{{ this.addTooltip }}"
+          matTooltip="{{ translations.addTooltip }}"
           [disabled]="!isEnabled()"
           (click)="add()"
-          attr.aria-label="{{ this.addAriaLabel }}"
+          attr.aria-label="{{ translations.addAriaLabel }}"
         >
           <mat-icon>add</mat-icon>
         </button>
       </div>
-      <p *ngIf="noData">{{ this.noDataMessage }}</p>
+      <p *ngIf="noData">{{ translations.noDataMessage }}</p>
       <div
         *ngFor="
           let item of [].constructor(data);
           let idx = index;
           trackBy: trackByFn;
-          last as last
+          last as last;
+          first as first
         "
       >
         <mat-card>
@@ -91,11 +101,35 @@ import {
           </mat-card-content>
           <mat-card-actions *ngIf="isEnabled()">
             <button
+              *ngIf="uischema?.options?.showSortButtons"
+              class="item-up"
+              mat-button
+              [disabled]="first"
+              (click)="up(idx)"
+              attr.aria-label="{{ translations.upAriaLabel }}"
+              matTooltip="{{ translations.up }}"
+              matTooltipPosition="right"
+            >
+              <mat-icon>arrow_upward</mat-icon>
+            </button>
+            <button
+              *ngIf="uischema?.options?.showSortButtons"
+              class="item-down"
+              mat-button
+              [disabled]="last"
+              (click)="down(idx)"
+              attr.aria-label="{{ translations.downAriaLabel }}"
+              matTooltip="{{ translations.down }}"
+              matTooltipPosition="right"
+            >
+              <mat-icon>arrow_downward</mat-icon>
+            </button>
+            <button
               mat-button
               color="warn"
               (click)="remove(idx)"
-              attr.aria-label="{{ this.removeAriaLabel }}"
-              matTooltip="{{ this.removeTooltip }}"
+              attr.aria-label="{{ translations.removeAriaLabel }}"
+              matTooltip="{{ translations.removeTooltip }}"
               matTooltipPosition="right"
             >
               <mat-icon>delete</mat-icon>
@@ -106,9 +140,10 @@ import {
     </div>
   `,
   styles: [
-    `.array-layout-toolbar {
-       display: flex;
-       align-items: center;
+    `
+      .array-layout-toolbar {
+        display: flex;
+        align-items: center;
       }
       .array-layout-title {
         margin: 0;
@@ -116,20 +151,19 @@ import {
       ::ng-deep .error-message-tooltip {
         white-space: pre-line;
       }
-      `
+    `,
   ],
-  changeDetection: ChangeDetectionStrategy.OnPush
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class ArrayLayoutRenderer
   extends JsonFormsAbstractControl<StatePropsOfArrayLayout>
-  implements OnInit, OnDestroy {
-  addTooltip: string;
-  addAriaLabel: string;
-  noDataMessage: string;
-  removeTooltip: string;
-  removeAriaLabel: string;
+  implements OnInit, OnDestroy
+{
   noData: boolean;
+  translations: ArrayTranslations;
   addItem: (path: string, value: any) => () => void;
+  moveItemUp: (path: string, index: number) => () => void;
+  moveItemDown: (path: string, index: number) => () => void;
   removeItems: (path: string, toDelete: number[]) => () => void;
   uischemas: {
     tester: UISchemaTester;
@@ -148,22 +182,27 @@ export class ArrayLayoutRenderer
   add(): void {
     this.addItem(this.propsPath, createDefaultValue(this.scopedSchema))();
   }
+  up(index: number): void {
+    this.moveItemUp(this.propsPath, index)();
+  }
+  down(index: number): void {
+    this.moveItemDown(this.propsPath, index)();
+  }
   ngOnInit() {
     super.ngOnInit();
-    const { addItem, removeItems } = mapDispatchToArrayControlProps(
-      this.jsonFormsService.updateCore.bind(this.jsonFormsService)
-    );
+    const { addItem, removeItems, moveUp, moveDown } =
+      mapDispatchToArrayControlProps(
+        this.jsonFormsService.updateCore.bind(this.jsonFormsService)
+      );
     this.addItem = addItem;
+    this.moveItemUp = moveUp;
+    this.moveItemDown = moveDown;
     this.removeItems = removeItems;
   }
   mapAdditionalProps(props: ArrayLayoutProps) {
+    this.translations = props.translations;
     this.noData = !props.data || props.data === 0;
     this.uischemas = props.uischemas;
-    this.addTooltip = `Add to ${this.label}`;
-    this.addAriaLabel = `Add to ${this.label} button`;
-    this.removeTooltip = `Delete`;
-    this.removeAriaLabel = `Delete button`;
-    this.noDataMessage = `No data`;
   }
   getProps(index: number): OwnPropsOfRenderer {
     const uischema = findUISchema(
@@ -183,7 +222,7 @@ export class ArrayLayoutRenderer
     return {
       schema: this.scopedSchema,
       path: Paths.compose(this.propsPath, `${index}`),
-      uischema
+      uischema,
     };
   }
   trackByFn(index: number) {

@@ -65,20 +65,25 @@ export const toDataPathSegments = (schemaPath: string): string[] => {
 
   const startFromRoot = decodedSegments[0] === '#' || decodedSegments[0] === '';
   const startIndex = startFromRoot ? 2 : 1;
-  return range(startIndex, decodedSegments.length, 2).map(idx => decodedSegments[idx]);
+  return range(startIndex, decodedSegments.length, 2).map(
+    (idx) => decodedSegments[idx]
+  );
 };
 
 /**
- * Remove all schema-specific keywords (e.g. 'properties') from a given path.
+ * Convert a schema path (i.e. JSON pointer) to a data path.
+ *
+ * Data paths can be used in field change event handlers like handleChange.
+ *
  * @example
- * toDataPath('#/properties/foo/properties/bar') === '#/foo/bar')
+ * toDataPath('#/properties/foo/properties/bar') === 'foo.bar')
  *
  * @param {string} schemaPath the schema path to be converted
- * @returns {string} the path without schema-specific keywords
+ * @returns {string} the data path
  */
 export const toDataPath = (schemaPath: string): string => {
   return toDataPathSegments(schemaPath).join('.');
-    };
+};
 
 export const composeWithUi = (scopableUi: Scopable, path: string): string => {
   if (!isScoped(scopableUi)) {
@@ -96,11 +101,13 @@ export const composeWithUi = (scopableUi: Scopable, path: string): string => {
 
 /**
  * Encodes the given segment to be used as part of a JSON Pointer
- * 
+ *
  * JSON Pointer has special meaning for "/" and "~", therefore these must be encoded
  */
-export const encode = (segment: string) => segment?.replace(/~/g, '~0').replace(/\//g, '~1');
+export const encode = (segment: string) =>
+  segment?.replace(/~/g, '~0').replace(/\//g, '~1');
 /**
  * Decodes a given JSON Pointer segment to its "normal" representation
  */
-export const decode = (pointerSegment: string) => pointerSegment?.replace(/~1/g, '/').replace(/~0/, '~');
+export const decode = (pointerSegment: string) =>
+  pointerSegment?.replace(/~1/g, '/').replace(/~0/, '~');

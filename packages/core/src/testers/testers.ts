@@ -31,13 +31,18 @@ import isArray from 'lodash/isArray';
 import reduce from 'lodash/reduce';
 import toPairs from 'lodash/toPairs';
 import includes from 'lodash/includes';
-import {
+import type {
   Categorization,
   ControlElement,
   JsonSchema,
-  UISchemaElement
+  UISchemaElement,
 } from '../models';
-import { deriveTypes, hasType, resolveSchema } from '../util';
+import {
+  deriveTypes,
+  hasType,
+  isOneOfEnumSchema,
+  resolveSchema,
+} from '../util';
 
 /**
  * Constant that indicates that a tester is not capable of handling
@@ -49,7 +54,11 @@ export const NOT_APPLICABLE = -1;
  * A tester is a function that receives an UI schema and a JSON schema and returns a boolean.
  * The rootSchema is handed over as context. Can be used to resolve references.
  */
-export type Tester = (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext) => boolean;
+export type Tester = (
+  uischema: UISchemaElement,
+  schema: JsonSchema,
+  context: TesterContext
+) => boolean;
 
 /**
  * A ranked tester associates a tester with a number.
@@ -83,50 +92,70 @@ export const isControl = (uischema: any): uischema is ControlElement =>
  * @param {(JsonSchema) => boolean} predicate the predicate that should be
  *        applied to the resolved sub-schema
  */
-export const schemaMatches = (
-  predicate: (schema: JsonSchema, rootSchema: JsonSchema) => boolean
-): Tester => (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext): boolean => {
-  if (isEmpty(uischema) || !isControl(uischema)) {
-    return false;
-  }
-  if (isEmpty(schema)) {
-    return false;
-  }
-  const schemaPath = uischema.scope;
-  if (isEmpty(schemaPath)) {
-    return false;
-  }
-  let currentDataSchema = schema;
-  if (hasType(schema, 'object')) {
-    currentDataSchema = resolveSchema(schema, schemaPath, context?.rootSchema);
-  }
-  if (currentDataSchema === undefined) {
-    return false;
-  }
+export const schemaMatches =
+  (
+    predicate: (schema: JsonSchema, rootSchema: JsonSchema) => boolean
+  ): Tester =>
+  (
+    uischema: UISchemaElement,
+    schema: JsonSchema,
+    context: TesterContext
+  ): boolean => {
+    if (isEmpty(uischema) || !isControl(uischema)) {
+      return false;
+    }
+    if (isEmpty(schema)) {
+      return false;
+    }
+    const schemaPath = uischema.scope;
+    if (isEmpty(schemaPath)) {
+      return false;
+    }
+    let currentDataSchema = schema;
+    if (hasType(schema, 'object')) {
+      currentDataSchema = resolveSchema(
+        schema,
+        schemaPath,
+        context?.rootSchema
+      );
+    }
+    if (currentDataSchema === undefined) {
+      return false;
+    }
 
-  return predicate(currentDataSchema, context?.rootSchema);
-};
+    return predicate(currentDataSchema, context?.rootSchema);
+  };
 
-export const schemaSubPathMatches = (
-  subPath: string,
-  predicate: (schema: JsonSchema, rootSchema: JsonSchema) => boolean
-): Tester => (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext): boolean => {
-  if (isEmpty(uischema) || !isControl(uischema)) {
-    return false;
-  }
-  const schemaPath = uischema.scope;
-  let currentDataSchema: JsonSchema = schema;
-  if (hasType(schema, 'object')) {
-    currentDataSchema = resolveSchema(schema, schemaPath, context?.rootSchema);
-  }
-  currentDataSchema = get(currentDataSchema, subPath);
+export const schemaSubPathMatches =
+  (
+    subPath: string,
+    predicate: (schema: JsonSchema, rootSchema: JsonSchema) => boolean
+  ): Tester =>
+  (
+    uischema: UISchemaElement,
+    schema: JsonSchema,
+    context: TesterContext
+  ): boolean => {
+    if (isEmpty(uischema) || !isControl(uischema)) {
+      return false;
+    }
+    const schemaPath = uischema.scope;
+    let currentDataSchema: JsonSchema = schema;
+    if (hasType(schema, 'object')) {
+      currentDataSchema = resolveSchema(
+        schema,
+        schemaPath,
+        context?.rootSchema
+      );
+    }
+    currentDataSchema = get(currentDataSchema, subPath);
 
-  if (currentDataSchema === undefined) {
-    return false;
-  }
+    if (currentDataSchema === undefined) {
+      return false;
+    }
 
-  return predicate(currentDataSchema, context?.rootSchema);
-};
+    return predicate(currentDataSchema, context?.rootSchema);
+  };
 
 /**
  * Only applicable for Controls.
@@ -138,7 +167,7 @@ export const schemaSubPathMatches = (
  * @param {string} expectedType the expected type of the resolved sub-schema
  */
 export const schemaTypeIs = (expectedType: string): Tester =>
-  schemaMatches(schema => !isEmpty(schema) && hasType(schema, expectedType));
+  schemaMatches((schema) => !isEmpty(schema) && hasType(schema, expectedType));
 
 /**
  * Only applicable for Controls.
@@ -151,7 +180,7 @@ export const schemaTypeIs = (expectedType: string): Tester =>
  */
 export const formatIs = (expectedFormat: string): Tester =>
   schemaMatches(
-    schema =>
+    (schema) =>
       !isEmpty(schema) &&
       schema.format === expectedFormat &&
       hasType(schema, 'string')
@@ -162,9 +191,10 @@ export const formatIs = (expectedFormat: string): Tester =>
  *
  * @param {string} expected the expected UI schema type
  */
-export const uiTypeIs = (expected: string): Tester => (
-  uischema: UISchemaElement
-): boolean => !isEmpty(uischema) && uischema.type === expected;
+export const uiTypeIs =
+  (expected: string): Tester =>
+  (uischema: UISchemaElement): boolean =>
+    !isEmpty(uischema) && uischema.type === expected;
 
 /**
  * Checks whether the given UI schema has an option with the given
@@ -174,16 +204,16 @@ export const uiTypeIs = (expected: string): Tester => (
  * @param {string} optionName the name of the option to check
  * @param {any} optionValue the expected value of the option
  */
-export const optionIs = (optionName: string, optionValue: any): Tester => (
-  uischema: UISchemaElement
-): boolean => {
-  if (isEmpty(uischema)) {
-    return false;
-  }
+export const optionIs =
+  (optionName: string, optionValue: any): Tester =>
+  (uischema: UISchemaElement): boolean => {
+    if (isEmpty(uischema)) {
+      return false;
+    }
 
-  const options = uischema.options;
-  return !isEmpty(options) && options[optionName] === optionValue;
-};
+    const options = uischema.options;
+    return !isEmpty(options) && options[optionName] === optionValue;
+  };
 
 /**
  * Only applicable for Controls.
@@ -192,15 +222,15 @@ export const optionIs = (optionName: string, optionValue: any): Tester => (
  *
  * @param {string} expected the expected ending of the reference
  */
-export const scopeEndsWith = (expected: string): Tester => (
-  uischema: UISchemaElement
-): boolean => {
-  if (isEmpty(expected) || !isControl(uischema)) {
-    return false;
-  }
+export const scopeEndsWith =
+  (expected: string): Tester =>
+  (uischema: UISchemaElement): boolean => {
+    if (isEmpty(expected) || !isControl(uischema)) {
+      return false;
+    }
 
-  return endsWith(uischema.scope, expected);
-};
+    return endsWith(uischema.scope, expected);
+  };
 
 /**
  * Only applicable for Controls.
@@ -209,38 +239,42 @@ export const scopeEndsWith = (expected: string): Tester => (
  *
  * @param {string} expected the expected ending of the reference
  */
-export const scopeEndIs = (expected: string): Tester => (
-  uischema: UISchemaElement
-): boolean => {
-  if (isEmpty(expected) || !isControl(uischema)) {
-    return false;
-  }
-  const schemaPath = uischema.scope;
+export const scopeEndIs =
+  (expected: string): Tester =>
+  (uischema: UISchemaElement): boolean => {
+    if (isEmpty(expected) || !isControl(uischema)) {
+      return false;
+    }
+    const schemaPath = uischema.scope;
 
-  return !isEmpty(schemaPath) && last(schemaPath.split('/')) === expected;
-};
+    return !isEmpty(schemaPath) && last(schemaPath.split('/')) === expected;
+  };
 
 /**
  * A tester that allow composing other testers by && them.
  *
  * @param {Array<Tester>} testers the testers to be composed
  */
-export const and = (...testers: Tester[]): Tester => (
-  uischema: UISchemaElement,
-  schema: JsonSchema,
-  context: TesterContext
-) => testers.reduce((acc, tester) => acc && tester(uischema, schema, context), true);
+export const and =
+  (...testers: Tester[]): Tester =>
+  (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext) =>
+    testers.reduce(
+      (acc, tester) => acc && tester(uischema, schema, context),
+      true
+    );
 
 /**
  * A tester that allow composing other testers by || them.
  *
  * @param {Array<Tester>} testers the testers to be composed
  */
-export const or = (...testers: Tester[]): Tester => (
-  uischema: UISchemaElement,
-  schema: JsonSchema,
-  context: TesterContext
-) => testers.reduce((acc, tester) => acc || tester(uischema, schema, context), false);
+export const or =
+  (...testers: Tester[]): Tester =>
+  (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext) =>
+    testers.reduce(
+      (acc, tester) => acc || tester(uischema, schema, context),
+      false
+    );
 /**
  * Create a ranked tester that will associate a number with a given tester, if the
  * latter returns true.
@@ -248,30 +282,34 @@ export const or = (...testers: Tester[]): Tester => (
  * @param {number} rank the rank to be returned in case the tester returns true
  * @param {Tester} tester a tester
  */
-export const rankWith = (rank: number, tester: Tester) => (
-  uischema: UISchemaElement,
-  schema: JsonSchema,
-  context: TesterContext
-): number => {
-  if (tester(uischema, schema, context)) {
-    return rank;
-  }
+export const rankWith =
+  (rank: number, tester: Tester) =>
+  (
+    uischema: UISchemaElement,
+    schema: JsonSchema,
+    context: TesterContext
+  ): number => {
+    if (tester(uischema, schema, context)) {
+      return rank;
+    }
 
-  return NOT_APPLICABLE;
-};
-
-export const withIncreasedRank = (by: number, rankedTester: RankedTester) => (
-  uischema: UISchemaElement,
-  schema: JsonSchema,
-  context: TesterContext
-): number => {
-  const rank = rankedTester(uischema, schema, context);
-  if (rank === NOT_APPLICABLE) {
     return NOT_APPLICABLE;
-  }
+  };
 
-  return rank + by;
-};
+export const withIncreasedRank =
+  (by: number, rankedTester: RankedTester) =>
+  (
+    uischema: UISchemaElement,
+    schema: JsonSchema,
+    context: TesterContext
+  ): number => {
+    const rank = rankedTester(uischema, schema, context);
+    if (rank === NOT_APPLICABLE) {
+      return NOT_APPLICABLE;
+    }
+
+    return rank + by;
+  };
 
 /**
  * Default tester for boolean.
@@ -287,17 +325,23 @@ export const isObjectControl = and(uiTypeIs('Control'), schemaTypeIs('object'));
 
 export const isAllOfControl = and(
   uiTypeIs('Control'),
-  schemaMatches(schema => schema.hasOwnProperty('allOf'))
+  schemaMatches((schema) =>
+    Object.prototype.hasOwnProperty.call(schema, 'allOf')
+  )
 );
 
 export const isAnyOfControl = and(
   uiTypeIs('Control'),
-  schemaMatches(schema => schema.hasOwnProperty('anyOf'))
+  schemaMatches((schema) =>
+    Object.prototype.hasOwnProperty.call(schema, 'anyOf')
+  )
 );
 
 export const isOneOfControl = and(
   uiTypeIs('Control'),
-  schemaMatches(schema => schema.hasOwnProperty('oneOf'))
+  schemaMatches((schema) =>
+    Object.prototype.hasOwnProperty.call(schema, 'oneOf')
+  )
 );
 
 /**
@@ -308,8 +352,12 @@ export const isOneOfControl = and(
 export const isEnumControl = and(
   uiTypeIs('Control'),
   or(
-    schemaMatches(schema => schema.hasOwnProperty('enum')),
-    schemaMatches(schema => schema.hasOwnProperty('const'))
+    schemaMatches((schema) =>
+      Object.prototype.hasOwnProperty.call(schema, 'enum')
+    ),
+    schemaMatches((schema) =>
+      Object.prototype.hasOwnProperty.call(schema, 'const')
+    )
   )
 );
 
@@ -320,10 +368,7 @@ export const isEnumControl = and(
  */
 export const isOneOfEnumControl = and(
   uiTypeIs('Control'),
-  schemaMatches(schema =>
-    schema.hasOwnProperty('oneOf') &&
-    (schema.oneOf as JsonSchema[]).every(s => s.const !== undefined)
-  )
+  schemaMatches((schema) => isOneOfEnumSchema(schema))
 );
 
 /**
@@ -396,11 +441,15 @@ export const isDateTimeControl = and(
  */
 export const isObjectArray = and(
   schemaMatches(
-    (schema, rootSchema) => hasType(schema, 'array') && !Array.isArray(resolveSchema(schema, 'items', rootSchema)) // we don't care about tuples
+    (schema, rootSchema) =>
+      hasType(schema, 'array') &&
+      !Array.isArray(resolveSchema(schema, 'items', rootSchema)) // we don't care about tuples
   ),
   schemaSubPathMatches('items', (schema, rootSchema) => {
-    const resolvedSchema = schema.$ref ? resolveSchema(rootSchema, schema.$ref, rootSchema) : schema;
-    return hasType(resolvedSchema, 'object')
+    const resolvedSchema = schema.$ref
+      ? resolveSchema(rootSchema, schema.$ref, rootSchema)
+      : schema;
+    return hasType(resolvedSchema, 'object');
   })
 );
 
@@ -417,7 +466,11 @@ const traverse = (
   rootSchema: JsonSchema
 ): boolean => {
   if (isArray(any)) {
-    return reduce(any, (acc, el) => acc || traverse(el, pred, rootSchema), false);
+    return reduce(
+      any,
+      (acc, el) => acc || traverse(el, pred, rootSchema),
+      false
+    );
   }
 
   if (pred(any)) {
@@ -454,32 +507,43 @@ export const isObjectArrayWithNesting = (
     return false;
   }
   const schemaPath = (uischema as ControlElement).scope;
-  const resolvedSchema = resolveSchema(schema, schemaPath, context?.rootSchema ?? schema);
+  const resolvedSchema = resolveSchema(
+    schema,
+    schemaPath,
+    context?.rootSchema ?? schema
+  );
   let objectDepth = 0;
   if (resolvedSchema !== undefined && resolvedSchema.items !== undefined) {
     // check if nested arrays
     if (
-      traverse(resolvedSchema.items, val => {
-        if (val === schema) {
-          return false;
-        }
-        if (val.$ref !== undefined) {
-          return false;
-        }
-        if (val.anyOf || val.oneOf) {
-          return true;
-        }
-        if (hasType(val, 'object')) {
-          objectDepth++;
-          if (objectDepth === 2) {
+      traverse(
+        resolvedSchema.items,
+        (val) => {
+          if (val === schema) {
+            return false;
+          }
+          if (val.$ref !== undefined) {
+            return false;
+          }
+          if (val.anyOf || val.allOf) {
             return true;
           }
-        }
-        if (hasType(val, 'array')) {
-          return true;
-        }
-        return false;
-      }, context?.rootSchema)
+          if (val.oneOf && !isOneOfEnumSchema(val)) {
+            return true;
+          }
+          if (hasType(val, 'object')) {
+            objectDepth++;
+            if (objectDepth === 2) {
+              return true;
+            }
+          }
+          if (hasType(val, 'array')) {
+            return true;
+          }
+          return false;
+        },
+        context?.rootSchema
+      )
     ) {
       return true;
     }
@@ -516,7 +580,9 @@ export const isPrimitiveArrayControl = and(
       !Array.isArray(resolveSchema(schema, 'items', rootSchema)) // we don't care about tuples
   ),
   schemaSubPathMatches('items', (schema, rootSchema) => {
-    const resolvedSchema = schema.$ref ? resolveSchema(rootSchema, schema.$ref, rootSchema) : schema;
+    const resolvedSchema = schema.$ref
+      ? resolveSchema(rootSchema, schema.$ref, rootSchema)
+      : schema;
     const types = deriveTypes(resolvedSchema);
     return (
       types.length === 1 &&
@@ -535,10 +601,10 @@ export const isRangeControl = and(
   uiTypeIs('Control'),
   or(schemaTypeIs('number'), schemaTypeIs('integer')),
   schemaMatches(
-    schema =>
-      schema.hasOwnProperty('maximum') &&
-      schema.hasOwnProperty('minimum') &&
-      schema.hasOwnProperty('default')
+    (schema) =>
+      Object.prototype.hasOwnProperty.call(schema, 'maximum') &&
+      Object.prototype.hasOwnProperty.call(schema, 'minimum') &&
+      Object.prototype.hasOwnProperty.call(schema, 'default')
   ),
   optionIs('slider', true)
 );
@@ -567,7 +633,7 @@ export const hasCategory = (categorization: Categorization): boolean => {
   }
   // all children of the categorization have to be categories
   return categorization.elements
-    .map(elem =>
+    .map((elem) =>
       isCategorization(elem) ? hasCategory(elem) : isCategory(elem)
     )
     .reduce((prev, curr) => prev && curr, true);
@@ -576,9 +642,7 @@ export const hasCategory = (categorization: Categorization): boolean => {
 export const categorizationHasCategory = (uischema: UISchemaElement) =>
   hasCategory(uischema as Categorization);
 
-export const not = (tester: Tester): Tester => (
-  uischema: UISchemaElement,
-  schema: JsonSchema,
-  context: TesterContext
-
-) => !tester(uischema, schema, context);
+export const not =
+  (tester: Tester): Tester =>
+  (uischema: UISchemaElement, schema: JsonSchema, context: TesterContext) =>
+    !tester(uischema, schema, context);

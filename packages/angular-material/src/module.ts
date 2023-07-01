@@ -25,9 +25,7 @@
 import { CommonModule } from '@angular/common';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
-import {
-  MatAutocompleteModule
-} from '@angular/material/autocomplete';
+import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatCardModule } from '@angular/material/card';
@@ -66,6 +64,7 @@ import { GroupLayoutRenderer } from './layouts/group-layout.renderer';
 import { HorizontalLayoutRenderer } from './layouts/horizontal-layout.renderer';
 import { VerticalLayoutRenderer } from './layouts/vertical-layout.renderer';
 import { ArrayLayoutRenderer } from './layouts/array-layout.renderer';
+import { LayoutChildrenRenderPropsPipe } from './layouts';
 
 @NgModule({
   imports: [
@@ -91,7 +90,7 @@ import { ArrayLayoutRenderer } from './layouts/array-layout.renderer';
     MatTableModule,
     MatToolbarModule,
     MatTooltipModule,
-    MatBadgeModule
+    MatBadgeModule,
   ],
   declarations: [
     BooleanControlRenderer,
@@ -111,7 +110,8 @@ import { ArrayLayoutRenderer } from './layouts/array-layout.renderer';
     ObjectControlRenderer,
     AutocompleteControlRenderer,
     TableRenderer,
-    ArrayLayoutRenderer
+    ArrayLayoutRenderer,
+    LayoutChildrenRenderPropsPipe,
   ],
   entryComponents: [
     BooleanControlRenderer,
@@ -131,7 +131,7 @@ import { ArrayLayoutRenderer } from './layouts/array-layout.renderer';
     ObjectControlRenderer,
     AutocompleteControlRenderer,
     TableRenderer,
-    ArrayLayoutRenderer
+    ArrayLayoutRenderer,
   ],
   exports: [
     CommonModule,
@@ -152,9 +152,9 @@ import { ArrayLayoutRenderer } from './layouts/array-layout.renderer';
     MatSelectModule,
     MatButtonModule,
     MatIconModule,
-    MatAutocompleteModule
+    MatAutocompleteModule,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
-  providers: []
+  providers: [],
 })
-export class JsonFormsAngularMaterialModule { }
+export class JsonFormsAngularMaterialModule {}

@@ -24,7 +24,7 @@
 */
 
 import { convertToValidClassName, createLabelDescriptionFrom } from './util';
-import { ControlElement, JsonSchema, LabelDescription } from './models';
+import type { ControlElement, JsonSchema, LabelDescription } from './models';
 
 export const Helpers: {
   createLabelDescriptionFrom(
@@ -34,5 +34,5 @@ export const Helpers: {
   convertToValidClassName(s: string): string;
 } = {
   createLabelDescriptionFrom,
-  convertToValidClassName
+  convertToValidClassName,
 };

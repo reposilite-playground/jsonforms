@@ -22,15 +22,15 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import { Type } from '@angular/core';
+import type { Type } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { JsonFormsAngularService, JsonFormsControl } from '@jsonforms/angular';
-import {
+import type {
   JsonFormsRendererRegistryEntry,
   JsonSchema,
-  UISchemaElement
+  UISchemaElement,
 } from '@jsonforms/core';
-import { ErrorObject } from 'ajv';
+import type { ErrorObject } from 'ajv';
 
 export interface ErrorTestExpectation {
   errorInstance: Type<any>;
@@ -50,7 +50,7 @@ export const baseSetup = <C extends JsonFormsControl>(
     TestBed.configureTestingModule({
       declarations: [testConfig.componentUT],
       imports: testConfig.imports,
-      providers: [JsonFormsAngularService].concat(testConfig.providers)
+      providers: [JsonFormsAngularService].concat(testConfig.providers),
     }).compileComponents();
   });
 };
@@ -82,8 +82,8 @@ export const setupMockStore = (
       data: testData.data,
       schema: testData.schema,
       errors: testData.errors,
-      uischema: testData.uischema
-    }
+      uischema: testData.uischema,
+    },
   });
   getJsonFormsService(component).registerRenderers(testData.renderers);
 };

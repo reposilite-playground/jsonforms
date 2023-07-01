@@ -29,29 +29,44 @@ export const schema = {
   properties: {
     plainEnum: {
       type: 'string',
-      enum: ['foo', 'bar']
+      enum: ['foo', 'bar'],
     },
     plainEnumSet: {
       type: 'string',
-      enum: ['foo', 'bar']
+      enum: ['foo', 'bar'],
+    },
+    enumWithError: {
+      type: 'string',
+      enum: ['foo', 'bar'],
     },
     oneOfEnum: {
-        type: 'string',
-        oneOf: [
-            {const: 'foo', title: 'Foo'},
-            {const: 'bar', title: 'Bar'},
-            {const: 'foobar', title: 'FooBar'}
-        ]
+      type: 'string',
+      oneOf: [
+        { const: 'foo', title: 'Foo' },
+        { const: 'bar', title: 'Bar' },
+        { const: 'foobar', title: 'FooBar' },
+      ],
     },
     oneOfEnumSet: {
       type: 'string',
       oneOf: [
-          {const: 'foo', title: 'Foo'},
-          {const: 'bar', title: 'Bar'},
-          {const: 'foobar', title: 'FooBar'}
-      ]
-  }
-  }
+        { const: 'foo', title: 'Foo' },
+        { const: 'bar', title: 'Bar' },
+        { const: 'foobar', title: 'FooBar' },
+      ],
+    },
+    oneOfEnumWithError: {
+      type: 'string',
+      oneOf: [
+        { const: 'foo', title: 'Foo' },
+        { const: 'bar', title: 'Bar' },
+        { const: 'foobar', title: 'FooBar' },
+      ],
+    },
+    constEnum: {
+      const: 'Const Value',
+    },
+  },
 };
 
 export const uischema = {
@@ -63,27 +78,35 @@ export const uischema = {
       elements: [
         {
           type: 'Control',
-          scope: '#/properties/plainEnum'
+          scope: '#/properties/constEnum',
         },
         {
           type: 'Control',
-          scope: '#/properties/plainEnumSet'
+          scope: '#/properties/plainEnum',
+        },
+        {
+          type: 'Control',
+          scope: '#/properties/plainEnumSet',
         },
         {
           type: 'Control',
           scope: '#/properties/plainEnum',
           options: {
-            autocomplete: false
-          }
+            autocomplete: false,
+          },
         },
         {
           type: 'Control',
           scope: '#/properties/plainEnumSet',
           options: {
-            autocomplete: false
-          }
+            autocomplete: false,
+          },
         },
-      ]
+        {
+          type: 'Control',
+          scope: '#/properties/enumWithError',
+        },
+      ],
     },
     {
       type: 'Group',
@@ -91,32 +114,41 @@ export const uischema = {
       elements: [
         {
           type: 'Control',
-          scope: '#/properties/oneOfEnum'
+          scope: '#/properties/oneOfEnum',
         },
         {
           type: 'Control',
-          scope: '#/properties/oneOfEnumSet'
+          scope: '#/properties/oneOfEnumSet',
         },
         {
           type: 'Control',
           scope: '#/properties/oneOfEnum',
           options: {
-            autocomplete: false
-          }
+            autocomplete: false,
+          },
         },
         {
           type: 'Control',
           scope: '#/properties/oneOfEnumSet',
           options: {
-            autocomplete: false
-          }
+            autocomplete: false,
+          },
         },
-      ]
-    }
-  ]
+        {
+          type: 'Control',
+          scope: '#/properties/oneOfEnumWithError',
+        },
+      ],
+    },
+  ],
 };
 
-export const data = {plainEnumSet: 'foo', oneOfEnumSet: 'bar'};
+export const data = {
+  plainEnumSet: 'foo',
+  enumWithError: 'bogus',
+  oneOfEnumSet: 'bar',
+  oneOfEnumWithError: 'bogus',
+};
 
 registerExamples([
   {
@@ -124,6 +156,6 @@ registerExamples([
     label: 'Enums',
     data,
     schema,
-    uischema
-  }
+    uischema,
+  },
 ]);

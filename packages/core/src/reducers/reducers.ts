@@ -23,34 +23,23 @@
   THE SOFTWARE.
 */
 
-import { ControlElement, UISchemaElement } from '../models';
-import {
-  coreReducer,
-  errorAt,
-  subErrorsAt,
-} from './core';
+import type { ControlElement, UISchemaElement } from '../models';
+import { coreReducer, errorAt, subErrorsAt } from './core';
 import { defaultDataReducer } from './default-data';
 import { rendererReducer } from './renderers';
-import { JsonFormsState } from '../store';
+import type { JsonFormsState } from '../store';
 import type { JsonFormsUISchemaRegistryEntry } from './uischemas';
-import {
-  findMatchingUISchema,
-  uischemaRegistryReducer,
-} from './uischemas';
-import {
-  fetchErrorTranslator,
-  fetchLocale,
-  i18nReducer,
-} from './i18n';
+import { findMatchingUISchema, uischemaRegistryReducer } from './uischemas';
+import { fetchErrorTranslator, fetchLocale, i18nReducer } from './i18n';
 
 import { Generate } from '../generators';
-import { JsonSchema } from '../models/jsonSchema';
+import type { JsonSchema } from '../models/jsonSchema';
 
 import { cellReducer } from './cells';
 import { configReducer } from './config';
 import get from 'lodash/get';
 import { fetchTranslator } from '.';
-import { ErrorTranslator, Translator } from '../i18n';
+import type { ErrorTranslator, Translator } from '../i18n';
 
 export const jsonFormsReducerConfig = {
   core: coreReducer,
@@ -84,7 +73,7 @@ export const findUISchema = (
     if (typeof control.options.detail === 'string') {
       if (control.options.detail.toUpperCase() === 'GENERATE') {
         //use fallback generation function
-        if(typeof fallback === "function"){
+        if (typeof fallback === 'function') {
           return fallback();
         }
         // force generation of uischema
@@ -104,7 +93,7 @@ export const findUISchema = (
   const uiSchema = findMatchingUISchema(uischemas)(schema, schemaPath, path);
   if (uiSchema === undefined) {
     //use fallback generation function
-    if(typeof fallback === 'function'){
+    if (typeof fallback === 'function') {
       return fallback();
     }
     return Generate.uiSchema(schema, fallback, '#', rootSchema);
@@ -112,25 +101,26 @@ export const findUISchema = (
   return uiSchema;
 };
 
-export const getErrorAt = (instancePath: string, schema: JsonSchema) => (
-  state: JsonFormsState
-) => {
-  return errorAt(instancePath, schema)(state.jsonforms.core);
-};
+export const getErrorAt =
+  (instancePath: string, schema: JsonSchema) => (state: JsonFormsState) => {
+    return errorAt(instancePath, schema)(state.jsonforms.core);
+  };
 
-export const getSubErrorsAt = (instancePath: string, schema: JsonSchema) => (
-  state: JsonFormsState
-) => subErrorsAt(instancePath, schema)(state.jsonforms.core);
+export const getSubErrorsAt =
+  (instancePath: string, schema: JsonSchema) => (state: JsonFormsState) =>
+    subErrorsAt(instancePath, schema)(state.jsonforms.core);
 
 export const getConfig = (state: JsonFormsState) => state.jsonforms.config;
 
 export const getLocale = (state: JsonFormsState) =>
   fetchLocale(get(state, 'jsonforms.i18n'));
 
-export const getTranslator = () => (
-  state: JsonFormsState
-): Translator => fetchTranslator(get(state, 'jsonforms.i18n'));
+export const getTranslator =
+  () =>
+  (state: JsonFormsState): Translator =>
+    fetchTranslator(get(state, 'jsonforms.i18n'));
 
-export const getErrorTranslator = () => (
-  state: JsonFormsState
-): ErrorTranslator => fetchErrorTranslator(get(state, 'jsonforms.i18n'));
+export const getErrorTranslator =
+  () =>
+  (state: JsonFormsState): ErrorTranslator =>
+    fetchErrorTranslator(get(state, 'jsonforms.i18n'));

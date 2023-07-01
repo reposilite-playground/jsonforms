@@ -23,7 +23,7 @@
   THE SOFTWARE.
 */
 import { RendererComponent } from './Renderer';
-import { ControlProps, ControlState } from '@jsonforms/core';
+import type { ControlProps, ControlState } from '@jsonforms/core';
 
 /**
  * A controlled component convenience wrapper that additionally manages a focused state.
@@ -37,12 +37,10 @@ export class Control<
 > extends RendererComponent<P, S> {
   constructor(props: P) {
     super(props);
-    // tslint:disable:no-object-literal-type-assertion
     this.state = {
       value: props.data ? props.data : '',
-      isFocused: false
+      isFocused: false,
     } as S;
-    // tslint:enable:no-object-literal-type-assertion
   }
 
   /**

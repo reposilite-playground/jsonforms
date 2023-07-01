@@ -24,9 +24,9 @@
 */
 
 import get from 'lodash/get';
-import Ajv from 'ajv';
-import { JsonFormsState } from '../store';
-import { JsonSchema, UISchemaElement } from '../models';
+import type Ajv from 'ajv';
+import type { JsonFormsState } from '../store';
+import type { JsonSchema, UISchemaElement } from '../models';
 import {
   extractAjv,
   extractData,
@@ -35,11 +35,11 @@ import {
 } from './core';
 import {
   extractDefaultData,
-  JsonFormsDefaultDataRegistryEntry
+  JsonFormsDefaultDataRegistryEntry,
 } from './default-data';
-import { JsonFormsRendererRegistryEntry } from './renderers';
-import { JsonFormsCellRendererRegistryEntry } from './cells';
-import { JsonFormsUISchemaRegistryEntry } from './uischemas';
+import type { JsonFormsRendererRegistryEntry } from './renderers';
+import type { JsonFormsCellRendererRegistryEntry } from './cells';
+import type { JsonFormsUISchemaRegistryEntry } from './uischemas';
 
 export const getData = (state: JsonFormsState) =>
   extractData(get(state, 'jsonforms.core'));
@@ -47,9 +47,8 @@ export const getSchema = (state: JsonFormsState): JsonSchema =>
   extractSchema(get(state, 'jsonforms.core'));
 export const getUiSchema = (state: JsonFormsState): UISchemaElement =>
   extractUiSchema(get(state, 'jsonforms.core'));
-export const getAjv = (
-  state: JsonFormsState
-): Ajv => extractAjv(get(state, 'jsonforms.core'));
+export const getAjv = (state: JsonFormsState): Ajv =>
+  extractAjv(get(state, 'jsonforms.core'));
 export const getDefaultData = (
   state: JsonFormsState
 ): JsonFormsDefaultDataRegistryEntry[] =>
@@ -62,4 +61,4 @@ export const getCells = (
 ): JsonFormsCellRendererRegistryEntry[] => get(state, 'jsonforms.cells');
 export const getUISchemas = (
   state: JsonFormsState
-): JsonFormsUISchemaRegistryEntry[] => get(state, 'jsonforms.uischemas')
+): JsonFormsUISchemaRegistryEntry[] => get(state, 'jsonforms.uischemas');

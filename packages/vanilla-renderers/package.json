@@ -1,0 +1,120 @@
+{
+  "name": "@jsonforms/vanilla-renderers",
+  "version": "3.1.0",
+  "description": "Default Renderer Set for JSON Forms",
+  "repository": "https://github.com/eclipsesource/jsonforms",
+  "bugs": "https://github.com/eclipsesource/jsonforms/issues",
+  "homepage": "http://jsonforms.io/",
+  "license": "MIT",
+  "main": "lib/jsonforms-react-vanilla.cjs.js",
+  "module": "lib/jsonforms-react-vanilla.esm.js",
+  "typings": "lib/index.d.ts",
+  "scripts": {
+    "build": "rollup -c rollup.config.js",
+    "build:examples-app": "rollup -c rollup.example.config.js",
+    "dev": "webpack --config ./webpack/webpack.dev.js && webpack-dev-server --config webpack/webpack.dev.js --env=dev --inline",
+    "clean": "rimraf lib coverage dist .nyc_output example/dist 2> /dev/null",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix .",
+    "report": "nyc report --reporter=html",
+    "test": "jest --no-cache",
+    "test-cov": "jest --no-cache --coverage",
+    "doc": "typedoc --name 'JSON Forms Vanilla Renderers' --mode file --excludeExternals --theme ../../typedoc-jsonforms --out docs src"
+  },
+  "files": [
+    "lib",
+    "src",
+    "example",
+    "Styles.md"
+  ],
+  "keywords": [
+    "vanilla",
+    "form",
+    "forms",
+    "json",
+    "jsonforms",
+    "frontend",
+    "generator",
+    "input",
+    "renderengine",
+    "jsonschema",
+    "schema",
+    "uischema",
+    "layout",
+    "customization"
+  ],
+  "peerDependencies": {
+    "@jsonforms/core": "3.1.0",
+    "@jsonforms/react": "3.1.0",
+    "react": "^16.12.0 || ^17.0.0 || ^18.0.0"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@jsonforms/core": "^3.1.0",
+    "@jsonforms/react": "^3.1.0",
+    "@rollup/plugin-commonjs": "^23.0.3",
+    "@rollup/plugin-json": "^5.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.1",
+    "@rollup/plugin-replace": "^5.0.1",
+    "@types/enzyme": "^3.10.3",
+    "@typescript-eslint/eslint-plugin": "^5.54.1",
+    "@typescript-eslint/parser": "^5.54.1",
+    "@wojtekmaj/enzyme-adapter-react-17": "^0.6.3",
+    "copy-webpack-plugin": "^5.0.5",
+    "enzyme": "^3.10.0",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.7.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-prettier": "^4.2.1",
+    "eslint-plugin-react": "^7.32.2",
+    "jest": "^26.6.3",
+    "jsdom": "^15.2.1",
+    "jsdom-global": "^3.0.2",
+    "nyc": "^15.1.0",
+    "prettier": "^2.8.4",
+    "react-dom": "^17.0.2",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.78.0",
+    "rollup-plugin-cleanup": "^3.2.1",
+    "rollup-plugin-copy": "^3.4.0",
+    "rollup-plugin-import-css": "^3.1.0",
+    "rollup-plugin-typescript2": "^0.31.1",
+    "rollup-plugin-visualizer": "^5.4.1",
+    "source-map-loader": "^0.2.4",
+    "source-map-support": "0.5.16",
+    "ts-loader": "^6.2.1",
+    "ts-node": "^10.4.0",
+    "typedoc": "^0.19.2",
+    "webpack": "^4.41.2",
+    "webpack-cli": "^3.2.1",
+    "webpack-dev-server": "^3.9.0"
+  },
+  "jest": {
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js"
+    ],
+    "transform": {
+      "^.+\\.(ts|tsx)$": "ts-jest"
+    },
+    "testMatch": [
+      "**/test/**/*.test.tsx"
+    ],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/dist/"
+    ],
+    "globals": {
+      "ts-jest": {
+        "tsconfig": "tsconfig.test.json"
+      }
+    }
+  },
+  "nyc": {
+    "reporter": [
+      "lcov",
+      "text-summary"
+    ]
+  }
+}

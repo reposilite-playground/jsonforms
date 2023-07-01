@@ -22,30 +22,43 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import { OnDestroy, OnInit, ChangeDetectorRef, Component } from '@angular/core';
+import {
+  OnDestroy,
+  OnInit,
+  ChangeDetectorRef,
+  Component,
+  PipeTransform,
+  Pipe,
+} from '@angular/core';
 import {
   JsonFormsAngularService,
-  JsonFormsBaseRenderer
+  JsonFormsBaseRenderer,
 } from '@jsonforms/angular';
 import {
   JsonFormsState,
   Layout,
   mapStateToLayoutProps,
   OwnPropsOfRenderer,
-  UISchemaElement
+  UISchemaElement,
+  JsonSchema,
 } from '@jsonforms/core';
-import { Subscription } from 'rxjs';
+import type { Subscription } from 'rxjs';
 
 @Component({
-  template: ''
+  template: '',
 })
-export class LayoutRenderer<T extends Layout> extends JsonFormsBaseRenderer<T>
-  implements OnInit, OnDestroy {
+export class LayoutRenderer<T extends Layout>
+  extends JsonFormsBaseRenderer<T>
+  implements OnInit, OnDestroy
+{
   hidden: boolean;
   label: string | undefined;
   private subscription: Subscription;
 
-  constructor(private jsonFormsService: JsonFormsAngularService, protected changeDetectionRef: ChangeDetectorRef) {
+  constructor(
+    private jsonFormsService: JsonFormsAngularService,
+    protected changeDetectionRef: ChangeDetectorRef
+  ) {
     super();
   }
 
@@ -56,7 +69,7 @@ export class LayoutRenderer<T extends Layout> extends JsonFormsBaseRenderer<T>
         this.label = props.label;
         this.hidden = !props.visible;
         this.changeDetectionRef.markForCheck();
-      }
+      },
     });
   }
 
@@ -66,20 +79,25 @@ export class LayoutRenderer<T extends Layout> extends JsonFormsBaseRenderer<T>
     }
   }
 
-  get renderProps(): OwnPropsOfRenderer[] {
-    const elements = (this.uischema.elements || []).map(
-      (el: UISchemaElement) => ({
-        uischema: el,
-        schema: this.schema,
-        path: this.path
-      })
-    );
-    return elements;
-  }
-
   trackElement(_index: number, renderProp: OwnPropsOfRenderer): string {
     return renderProp
       ? renderProp.path + JSON.stringify(renderProp.uischema)
       : null;
+  }
+}
+
+@Pipe({ name: 'layoutChildrenRenderProps' })
+export class LayoutChildrenRenderPropsPipe implements PipeTransform {
+  transform(
+    uischema: Layout,
+    schema: JsonSchema,
+    path: string
+  ): OwnPropsOfRenderer[] {
+    const elements = (uischema.elements || []).map((el: UISchemaElement) => ({
+      uischema: el,
+      schema: schema,
+      path: path,
+    }));
+    return elements;
   }
 }

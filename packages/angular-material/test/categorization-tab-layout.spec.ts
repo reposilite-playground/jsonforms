@@ -28,17 +28,21 @@ import {
   MatTab,
   MatTabBody,
   MatTabGroup,
-  MatTabsModule
+  MatTabsModule,
 } from '@angular/material/tabs';
 import { By } from '@angular/platform-browser';
 import { NoopAnimationsModule } from '@angular/platform-browser/animations';
 import {
   JsonFormsAngularService,
   JsonFormsModule,
-  JsonFormsOutlet
+  JsonFormsOutlet,
 } from '@jsonforms/angular';
 import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
-import { CategorizationTabLayoutRenderer, TextControlRenderer, TextControlRendererTester } from '../src';
+import {
+  CategorizationTabLayoutRenderer,
+  TextControlRenderer,
+  TextControlRendererTester,
+} from '../src';
 import { FlexLayoutModule } from '@angular/flex-layout';
 import { setupMockStore, getJsonFormsService } from '@jsonforms/angular-test';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -59,27 +63,33 @@ describe('Categorization tab layout', () => {
     type: 'object',
     properties: {
       foo: {
-        type: 'string'
+        type: 'string',
       },
       bar: {
-        type: 'string'
-      }
-    }
+        type: 'string',
+      },
+    },
   };
 
   beforeEach(() => {
     TestBed.configureTestingModule({
-      declarations: [
-        CategorizationTabLayoutRenderer,
-        TextControlRenderer
+      declarations: [CategorizationTabLayoutRenderer, TextControlRenderer],
+      imports: [
+        CommonModule,
+        MatTabsModule,
+        FlexLayoutModule,
+        NoopAnimationsModule,
+        JsonFormsModule,
+        MatFormFieldModule,
+        MatInputModule,
+        ReactiveFormsModule,
       ],
-      imports: [CommonModule, MatTabsModule, FlexLayoutModule, NoopAnimationsModule, JsonFormsModule,MatFormFieldModule,MatInputModule,ReactiveFormsModule,],
-      providers: [JsonFormsAngularService]
+      providers: [JsonFormsAngularService],
     })
       .overrideModule(BrowserDynamicTestingModule, {
         set: {
-          entryComponents: [TextControlRenderer]
-        }
+          entryComponents: [TextControlRenderer],
+        },
       })
       .compileComponents();
 
@@ -97,13 +107,13 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/foo'
+              scope: '#/properties/foo',
             },
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
+              scope: '#/properties/bar',
+            },
+          ],
         },
         {
           type: 'Category',
@@ -111,11 +121,11 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
-        }
-      ]
+              scope: '#/properties/bar',
+            },
+          ],
+        },
+      ],
     };
 
     setupMockStore(fixture, { uischema, schema, data });
@@ -162,25 +172,23 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/foo'
+              scope: '#/properties/foo',
             },
-          ]
-        }
-      ]
+          ],
+        },
+      ],
     };
     setupMockStore(fixture, { uischema, schema, data });
     component.path = 'aa';
-    const subSchema = {type: 'string'};
+    const subSchema = { type: 'string' };
     component.schema = subSchema;
     getJsonFormsService(component).init({
-
       renderers: renderers,
       core: {
         data: {},
         schema: schema,
-        uischema: undefined
-      }
-
+        uischema: undefined,
+      },
     });
 
     fixture.detectChanges();
@@ -206,13 +214,13 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/foo'
+              scope: '#/properties/foo',
             },
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
+              scope: '#/properties/bar',
+            },
+          ],
         },
         {
           type: 'Category',
@@ -220,11 +228,11 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
-        }
-      ]
+              scope: '#/properties/bar',
+            },
+          ],
+        },
+      ],
     };
     setupMockStore(fixture, { uischema, schema, data });
     fixture.detectChanges();
@@ -245,9 +253,9 @@ describe('Categorization tab layout', () => {
             elements: [
               {
                 type: 'Control',
-                scope: '#/properties/foo'
-              }
-            ]
+                scope: '#/properties/foo',
+              },
+            ],
           },
           {
             type: 'Category',
@@ -255,9 +263,9 @@ describe('Categorization tab layout', () => {
             elements: [
               {
                 type: 'Control',
-                scope: '#/properties/bar'
-              }
-            ]
+                scope: '#/properties/bar',
+              },
+            ],
           },
           {
             type: 'Category',
@@ -265,15 +273,15 @@ describe('Categorization tab layout', () => {
             elements: [
               {
                 type: 'Control',
-                scope: '#/properties/bar'
-              }
-            ]
-          }
-        ]
+                scope: '#/properties/bar',
+              },
+            ],
+          },
+        ],
       };
-      getJsonFormsService(component).setUiSchema(newUischema);
       component.uischema = newUischema;
       fixture.detectChanges();
+      getJsonFormsService(component).setUiSchema(newUischema);
 
       fixture.whenRenderingDone().then(() => {
         fixture.detectChanges();
@@ -284,8 +292,7 @@ describe('Categorization tab layout', () => {
         expect(tabGroup2._tabs.length).toBe(3);
         const lastTab: MatTab = tabGroup2._tabs.last;
         expect(lastTab.isActive).toBeFalsy();
-        // there are update issues within the tests so that the new ui schema is not assigned to `this.uischema` within the renderer
-        // expect(lastTab.textLabel).toBe('quux');
+        expect(lastTab.textLabel).toBe('quux');
       });
     });
   }));
@@ -301,13 +308,13 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/foo'
+              scope: '#/properties/foo',
             },
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
+              scope: '#/properties/bar',
+            },
+          ],
         },
         {
           type: 'Category',
@@ -315,11 +322,11 @@ describe('Categorization tab layout', () => {
           elements: [
             {
               type: 'Control',
-              scope: '#/properties/bar'
-            }
-          ]
-        }
-      ]
+              scope: '#/properties/bar',
+            },
+          ],
+        },
+      ],
     };
     setupMockStore(fixture, { uischema, schema, data });
     component.visible = false;
