@@ -24,6 +24,7 @@
 */
 import { registerExamples } from '../register';
 import { personCoreSchema } from './person';
+import { StateProps } from '../example';
 
 export const schema = {
   type: 'object',
@@ -32,6 +33,9 @@ export const schema = {
     occupation: { type: 'string' },
     comments: {
       type: 'array',
+      description: 'Description for array with details',
+      minItems: 2,
+      maxItems: 8,
       items: {
         type: 'object',
         properties: {
@@ -58,6 +62,7 @@ export const uischema = {
       scope: '#/properties/comments',
       options: {
         showSortButtons: true,
+        restrict: true,
         detail: {
           type: 'VerticalLayout',
           elements: [
@@ -89,6 +94,15 @@ export const data = {
   ],
 };
 
+const actions = [
+  {
+    label: 'Toggle readonly',
+    apply: (props: StateProps) => {
+      return { ...props, readonly: !props.readonly };
+    },
+  },
+];
+
 registerExamples([
   {
     name: 'array-with-detail',
@@ -96,5 +110,6 @@ registerExamples([
     data,
     schema,
     uischema,
+    actions,
   },
 ]);

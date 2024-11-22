@@ -3,13 +3,16 @@ import {
   ControlProps,
   DispatchPropsOfMultiEnumControl,
   hasType,
+  isDescriptionHidden,
   JsonSchema,
   OwnPropsOfEnum,
   Paths,
   RankedTester,
   rankWith,
+  resolveSchema,
   schemaMatches,
   schemaSubPathMatches,
+  showAsRequired,
   uiTypeIs,
 } from '@jsonforms/core';
 
@@ -20,15 +23,22 @@ import {
   FormControlLabel,
   FormGroup,
   FormHelperText,
-  Hidden,
+  FormLabel,
 } from '@mui/material';
 import isEmpty from 'lodash/isEmpty';
 import React from 'react';
+import merge from 'lodash/merge';
+import { useFocus } from '../util';
 
 export const MaterialEnumArrayRenderer = ({
+  config,
+  id,
   schema,
   visible,
   errors,
+  description,
+  label,
+  required,
   path,
   options,
   data,
@@ -37,44 +47,74 @@ export const MaterialEnumArrayRenderer = ({
   handleChange: _handleChange,
   ...otherProps
 }: ControlProps & OwnPropsOfEnum & DispatchPropsOfMultiEnumControl) => {
+  const [focused, onFocus, onBlur] = useFocus();
+  const isValid = errors.length === 0;
+  const appliedUiSchemaOptions = merge({}, config, otherProps.uischema.options);
+  const showDescription = !isDescriptionHidden(
+    visible,
+    description,
+    focused,
+    appliedUiSchemaOptions.showUnfocusedDescription
+  );
+
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <Hidden xlUp={!visible}>
-      <FormControl component='fieldset'>
-        <FormGroup row>
-          {options.map((option: any, index: number) => {
-            const optionPath = Paths.compose(path, `${index}`);
-            const checkboxValue = data?.includes(option.value)
-              ? option.value
-              : undefined;
-            return (
-              <FormControlLabel
-                id={option.value}
-                key={option.value}
-                control={
-                  <MuiCheckbox
-                    key={'checkbox-' + option.value}
-                    isValid={isEmpty(errors)}
-                    path={optionPath}
-                    handleChange={(_childPath, newValue) =>
-                      newValue
-                        ? addItem(path, option.value)
-                        : removeItem(path, option.value)
-                    }
-                    data={checkboxValue}
-                    errors={errors}
-                    schema={schema}
-                    visible={visible}
-                    {...otherProps}
-                  />
-                }
-                label={option.label}
-              />
-            );
-          })}
-        </FormGroup>
-        <FormHelperText error>{errors}</FormHelperText>
-      </FormControl>
-    </Hidden>
+    <FormControl
+      component='fieldset'
+      fullWidth={!appliedUiSchemaOptions.trim}
+      onFocus={onFocus}
+      onBlur={onBlur}
+    >
+      <FormLabel
+        error={!isValid}
+        component='legend'
+        required={showAsRequired(
+          required,
+          appliedUiSchemaOptions.hideRequiredAsterisk
+        )}
+      >
+        {label}
+      </FormLabel>
+      <FormGroup row>
+        {options.map((option: any, index: number) => {
+          const optionPath = Paths.compose(path, `${index}`);
+          const checkboxValue = data?.includes(option.value)
+            ? option.value
+            : undefined;
+          return (
+            <FormControlLabel
+              id={id + '-label-' + option.value}
+              key={option.value}
+              control={
+                <MuiCheckbox
+                  id={id + '-' + option.value}
+                  key={'checkbox-' + option.value}
+                  isValid={isEmpty(errors)}
+                  path={optionPath}
+                  handleChange={(_childPath, newValue) =>
+                    newValue
+                      ? addItem(path, option.value)
+                      : removeItem(path, option.value)
+                  }
+                  data={checkboxValue}
+                  errors={errors}
+                  schema={schema}
+                  visible={visible}
+                  {...otherProps}
+                />
+              }
+              label={option.label}
+            />
+          );
+        })}
+      </FormGroup>
+      <FormHelperText error={!isValid}>
+        {!isValid ? errors : showDescription ? description : null}
+      </FormHelperText>
+    </FormControl>
   );
 };
 
@@ -99,8 +139,11 @@ export const materialEnumArrayRendererTester: RankedTester = rankWith(
           !Array.isArray(schema.items) &&
           schema.uniqueItems === true
       ),
-      schemaSubPathMatches('items', (schema) => {
-        return hasOneOfItems(schema) || hasEnumItems(schema);
+      schemaSubPathMatches('items', (schema, rootSchema) => {
+        const resolvedSchema = schema.$ref
+          ? resolveSchema(rootSchema, schema.$ref, rootSchema)
+          : schema;
+        return hasOneOfItems(resolvedSchema) || hasEnumItems(resolvedSchema);
       })
     )
   )

@@ -22,8 +22,10 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import isEmpty from 'lodash/isEmpty';
+
+import { TabSwitchConfirmDialog } from './TabSwitchConfirmDialog';
 
 import {
   CombinatorRendererProps,
@@ -35,17 +37,7 @@ import {
   RankedTester,
   rankWith,
 } from '@jsonforms/core';
-import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
-  Hidden,
-  Tab,
-  Tabs,
-} from '@mui/material';
+import { Tab, Tabs } from '@mui/material';
 import { JsonFormsDispatch, withJsonFormsOneOfProps } from '@jsonforms/react';
 import CombinatorProperties from './CombinatorProperties';
 
@@ -67,49 +59,65 @@ export const MaterialOneOfRenderer = ({
   uischemas,
   data,
 }: CombinatorRendererProps) => {
-  const [open, setOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [selectedIndex, setSelectedIndex] = useState(indexOfFittingSchema || 0);
   const [newSelectedIndex, setNewSelectedIndex] = useState(0);
-  const handleClose = useCallback(() => setOpen(false), [setOpen]);
+  const handleClose = useCallback(
+    () => setConfirmDialogOpen(false),
+    [setConfirmDialogOpen]
+  );
   const cancel = useCallback(() => {
-    setOpen(false);
-  }, [setOpen]);
-  const oneOfRenderInfos = createCombinatorRenderInfos(
-    (schema as JsonSchema).oneOf,
-    rootSchema,
-    'oneOf',
-    uischema,
-    path,
-    uischemas
+    setConfirmDialogOpen(false);
+  }, [setConfirmDialogOpen]);
+  const oneOfRenderInfos = useMemo(
+    () =>
+      createCombinatorRenderInfos(
+        (schema as JsonSchema).oneOf,
+        rootSchema,
+        'oneOf',
+        uischema,
+        path,
+        uischemas
+      ),
+    [schema, rootSchema, uischema, path, uischemas]
   );
 
   const openNewTab = (newIndex: number) => {
-    handleChange(path, createDefaultValue(oneOfRenderInfos[newIndex].schema));
+    handleChange(
+      path,
+      createDefaultValue(oneOfRenderInfos[newIndex].schema, rootSchema)
+    );
     setSelectedIndex(newIndex);
   };
 
   const confirm = useCallback(() => {
     openNewTab(newSelectedIndex);
-    setOpen(false);
+    setConfirmDialogOpen(false);
   }, [handleChange, createDefaultValue, newSelectedIndex]);
+
   const handleTabChange = useCallback(
     (_event: any, newOneOfIndex: number) => {
       setNewSelectedIndex(newOneOfIndex);
       if (isEmpty(data)) {
         openNewTab(newOneOfIndex);
       } else {
-        setOpen(true);
+        setConfirmDialogOpen(true);
       }
     },
-    [setOpen, setSelectedIndex, data]
+    [setConfirmDialogOpen, setSelectedIndex, data]
   );
 
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <Hidden xsUp={!visible}>
+    <>
       <CombinatorProperties
         schema={schema}
         combinatorKeyword={'oneOf'}
         path={path}
+        rootSchema={rootSchema}
       />
       <Tabs value={selectedIndex} onChange={handleTabChange}>
         {oneOfRenderInfos.map((oneOfRenderInfo) => (
@@ -129,34 +137,14 @@ export const MaterialOneOfRenderer = ({
             />
           )
       )}
-      <Dialog
-        open={open}
-        onClose={handleClose}
-        aria-labelledby='alert-dialog-title'
-        aria-describedby='alert-dialog-description'
-      >
-        <DialogTitle id='alert-dialog-title'>{'Clear form?'}</DialogTitle>
-        <DialogContent>
-          <DialogContentText id='alert-dialog-description'>
-            Your data will be cleared if you navigate away from this tab. Do you
-            want to proceed?
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={cancel} color='primary'>
-            No
-          </Button>
-          <Button
-            onClick={confirm}
-            color='primary'
-            autoFocus
-            id={`oneOf-${id}-confirm-yes`}
-          >
-            Yes
-          </Button>
-        </DialogActions>
-      </Dialog>
-    </Hidden>
+      <TabSwitchConfirmDialog
+        cancel={cancel}
+        confirm={confirm}
+        id={'oneOf-' + id}
+        open={confirmDialogOpen}
+        handleClose={handleClose}
+      />
+    </>
   );
 };
 

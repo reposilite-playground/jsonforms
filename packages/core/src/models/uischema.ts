@@ -135,6 +135,19 @@ export interface LeafCondition extends Condition, Scoped {
 
 export interface SchemaBasedCondition extends Condition, Scoped {
   schema: JsonSchema;
+
+  /**
+   * When the scope resolves to undefined and `failWhenUndefined` is set to `true`, the condition
+   * will fail. Therefore the reverse effect will be applied.
+   *
+   * Background:
+   * Most JSON Schemas will successfully validate against `undefined` data. Specifying that a
+   * condition shall fail when data is `undefined` requires to lift the scope to being able to use
+   * JSON Schema's `required`.
+   *
+   * Using `failWhenUndefined` allows to more conveniently express this condition.
+   */
+  failWhenUndefined?: boolean;
 }
 
 /**
@@ -271,28 +284,3 @@ export interface Categorization
    */
   elements: (Category | Categorization)[];
 }
-
-export const isInternationalized = (
-  element: unknown
-): element is Required<Internationalizable> =>
-  typeof element === 'object' &&
-  element !== null &&
-  typeof (element as Internationalizable).i18n === 'string';
-
-export const isGroup = (layout: Layout): layout is GroupLayout =>
-  layout.type === 'Group';
-
-export const isLayout = (uischema: UISchemaElement): uischema is Layout =>
-  (uischema as Layout).elements !== undefined;
-
-export const isScopable = (obj: unknown): obj is Scopable =>
-  !!obj && typeof obj === 'object';
-
-export const isScoped = (obj: unknown): obj is Scoped =>
-  isScopable(obj) && typeof obj.scope === 'string';
-
-export const isLabelable = (obj: unknown): obj is Labelable =>
-  !!obj && typeof obj === 'object';
-
-export const isLabeled = <T = never>(obj: unknown): obj is Labeled<T> =>
-  isLabelable(obj) && ['string', 'boolean'].includes(typeof obj.label);

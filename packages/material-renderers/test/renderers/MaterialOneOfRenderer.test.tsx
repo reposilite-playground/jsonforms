@@ -22,7 +22,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import './MatchMediaMock';
 import React from 'react';
 import Dialog from '@mui/material/Dialog';
 
@@ -40,7 +39,7 @@ import { initCore, TestEmitter } from './util';
 
 Enzyme.configure({ adapter: new Adapter() });
 
-const waitForAsync = () => new Promise((resolve) => setImmediate(resolve));
+const waitForAsync = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 const clickAddButton = (wrapper: ReactWrapper, times: number) => {
   // click add button
@@ -436,7 +435,7 @@ describe('Material oneOf renderer', () => {
     });
   });
 
-  it('should switch to array based oneOf subschema, then switch back, then edit', async (done) => {
+  it('should switch to array based oneOf subschema, then switch back, then edit', async () => {
     const schema = {
       type: 'object',
       properties: {
@@ -506,12 +505,17 @@ describe('Material oneOf renderer', () => {
     input.simulate('change', { target: { value: 'test' } });
     wrapper.update();
 
+    let done: (value: undefined) => void;
+    const donePromise = new Promise<undefined>((resolve) => {
+      done = resolve;
+    });
     setTimeout(() => {
       expect(onChangeData.data).toEqual({
         thingOrThings: { thing: 'test' },
       });
-      done();
+      done(undefined);
     }, 1000);
+    return donePromise;
   });
 
   it('should show confirm dialog when data is not an empty object', async () => {

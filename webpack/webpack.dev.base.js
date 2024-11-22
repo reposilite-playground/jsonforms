@@ -1,5 +1,5 @@
 var webpack = require('webpack');
-const merge = require('webpack-merge');
+const merge = require('webpack-merge').merge;
 const baseConfig = require('./webpack.base.js');
 
 module.exports = merge(baseConfig, {
@@ -9,7 +9,7 @@ module.exports = merge(baseConfig, {
     'webpack/hot/dev-server',
     './src/index.ts',
     '../examples/src/index.ts',
-    './example/index.ts',
+    './example/index.tsx',
   ],
   output: {
     publicPath: '/assets/',
@@ -17,15 +17,18 @@ module.exports = merge(baseConfig, {
   },
 
   devServer: {
-    contentBase: './example',
+    static: './example',
   },
-  plugins: [new webpack.HotModuleReplacementPlugin()],
+
   module: {
     rules: [
       {
         test: /\.html$/,
         exclude: /node_modules/,
-        loader: 'html-loader?exportAsEs6Default',
+        loader: 'html-loader',
+        options: {
+          exportAsEs6Default: true,
+        },
       },
       { test: /\.css$/, use: ['style-loader', 'css-loader'] },
     ],

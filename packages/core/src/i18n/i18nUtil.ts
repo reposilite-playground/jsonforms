@@ -1,12 +1,19 @@
 import type { ErrorObject } from 'ajv';
-import { isInternationalized, Labelable, UISchemaElement } from '../models';
-import { getControlPath } from '../reducers';
-import { formatErrorMessage } from '../util';
-import type { i18nJsonSchema, ErrorTranslator, Translator } from './i18nTypes';
+import { Labelable, UISchemaElement } from '../models';
+import type { i18nJsonSchema, ErrorTranslator, Translator } from '../store';
 import {
   ArrayDefaultTranslation,
   ArrayTranslations,
 } from './arrayTranslations';
+import {
+  CombinatorDefaultTranslation,
+  CombinatorTranslations,
+} from './combinatorTranslations';
+import {
+  formatErrorMessage,
+  getControlPath,
+  isInternationalized,
+} from '../util';
 
 export const getI18nKeyPrefixBySchema = (
   schema: i18nJsonSchema | undefined,
@@ -167,6 +174,20 @@ export const getArrayTranslations = (
   label: string
 ): ArrayTranslations => {
   const translations: ArrayTranslations = {};
+  defaultTranslations.forEach((controlElement) => {
+    const key = addI18nKeyToPrefix(i18nKeyPrefix, controlElement.key);
+    translations[controlElement.key] = t(key, controlElement.default(label));
+  });
+  return translations;
+};
+
+export const getCombinatorTranslations = (
+  t: Translator,
+  defaultTranslations: CombinatorDefaultTranslation[],
+  i18nKeyPrefix: string,
+  label: string
+): CombinatorTranslations => {
+  const translations: CombinatorTranslations = {};
   defaultTranslations.forEach((controlElement) => {
     const key = addI18nKeyToPrefix(i18nKeyPrefix, controlElement.key);
     translations[controlElement.key] = t(key, controlElement.default(label));

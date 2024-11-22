@@ -29,10 +29,12 @@ import {
   booleanErrorTest,
   booleanInputEventTest,
   ErrorTestExpectation,
-} from '@jsonforms/angular-test';
+} from './common';
 import { BooleanControlRenderer, booleanControlTester } from '../src';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { JsonFormsAngularService } from '@jsonforms/angular';
+import { initTestEnvironment } from './test';
+
+initTestEnvironment();
 
 describe('Material boolean field tester', () => {
   const uischema = {
@@ -57,7 +59,7 @@ describe('Material boolean field tester', () => {
     ).toBe(2);
   });
 });
-const imports = [MatCheckboxModule, MatFormFieldModule, FlexLayoutModule];
+const imports = [MatCheckboxModule, MatFormFieldModule];
 const providers = [JsonFormsAngularService];
 const componentUT: any = BooleanControlRenderer;
 const errorTest: ErrorTestExpectation = {

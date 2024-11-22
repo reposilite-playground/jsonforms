@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { copySync } from 'fs-extra/esm';
-import { copyFileSync, mkdirSync, rmdirSync } from 'fs';
+import { copyFileSync, existsSync, mkdirSync, rmdirSync } from 'fs';
 import { dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -14,12 +14,16 @@ const examples = {
   'react-vanilla': join(packagesDir, 'vanilla-renderers', 'example', 'dist'),
   'react-material': join(packagesDir, 'material-renderers', 'example', 'dist'),
   'angular-material': join(packagesDir, 'angular-material', 'example', 'dist'),
-  'vue-vanilla': join(packagesDir, 'vue', 'vue-vanilla', 'example', 'dist'),
+  'vue-vanilla': join(packagesDir, 'vue-vanilla', 'example', 'dist'),
+  'vue-vuetify': join(packagesDir, 'vue-vuetify', 'example', 'dist'),
 };
 
 // Clean and recreate dist dir
-console.log('Clean and recreate dist dir...');
-rmdirSync(distDir, { recursive: true, force: true });
+if (existsSync(distDir)) {
+  console.log('Remove existing dist dir...');
+  rmdirSync(distDir, { recursive: true, force: true });
+}
+console.log('Create dist dir...');
 mkdirSync(distDir, { recursive: true });
 
 // Copy index and built examples

@@ -22,10 +22,8 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import { BrowserDynamicTestingModule } from '@angular/platform-browser-dynamic/testing';
 import { CommonModule } from '@angular/common';
-import { async, ComponentFixture, TestBed } from '@angular/core/testing';
-import { FlexLayoutModule } from '@angular/flex-layout';
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -44,9 +42,10 @@ import {
 import {
   ObjectControlRenderer,
   ObjectControlRendererTester,
-} from '../src/other/object.renderer';
-import { getJsonFormsService } from '@jsonforms/angular-test';
-import { LayoutChildrenRenderPropsPipe } from '../src/layouts/layout.renderer';
+} from '../src/library/other/object.renderer';
+import { getJsonFormsService } from './common';
+import { LayoutChildrenRenderPropsPipe } from '../src/library/layouts/layout.renderer';
+import { initTestEnvironment } from './test';
 
 const uischema1: ControlElement = { type: 'Control', scope: '#' };
 const uischema2: ControlElement = {
@@ -83,6 +82,8 @@ const renderers = [
   { tester: ObjectControlRendererTester, renderer: ObjectControlRenderer },
 ];
 
+initTestEnvironment();
+
 describe('Object Control tester', () => {
   it('should succeed', () => {
     expect(ObjectControlRendererTester(uischema1, schema1, undefined)).toBe(2);
@@ -93,7 +94,7 @@ describe('Object Control', () => {
   let fixture: ComponentFixture<any>;
   let component: any;
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [
         ObjectControlRenderer,
@@ -110,27 +111,15 @@ describe('Object Control', () => {
         MatFormFieldModule,
         MatInputModule,
         ReactiveFormsModule,
-        FlexLayoutModule,
       ],
       providers: [JsonFormsAngularService],
-    })
-      .overrideModule(BrowserDynamicTestingModule, {
-        set: {
-          entryComponents: [
-            TextControlRenderer,
-            VerticalLayoutRenderer,
-            GroupLayoutRenderer,
-            ObjectControlRenderer,
-          ],
-        },
-      })
-      .compileComponents();
+    }).compileComponents();
 
     fixture = TestBed.createComponent(ObjectControlRenderer);
     component = fixture.componentInstance;
   }));
 
-  it('object control creates group', async(() => {
+  it('object control creates group', waitForAsync(() => {
     component.uischema = uischema2;
     component.schema = schema2;
 
@@ -153,7 +142,7 @@ describe('Object Control', () => {
     });
   }));
 
-  it('render all elements', async(() => {
+  it('render all elements', waitForAsync(() => {
     component.uischema = uischema1;
     component.schema = schema2;
 
@@ -173,7 +162,7 @@ describe('Object Control', () => {
     });
   }));
 
-  it('render only own elements', async(() => {
+  it('render only own elements', waitForAsync(() => {
     component.uischema = uischema2;
     component.schema = schema2;
 
@@ -192,7 +181,7 @@ describe('Object Control', () => {
     });
   }));
 
-  xit('can be disabled', async(() => {
+  xit('can be disabled', waitForAsync(() => {
     component.uischema = uischema1;
     component.schema = schema1;
     component.disabled = true;
@@ -211,7 +200,7 @@ describe('Object Control', () => {
       expect(fixture.nativeElement.querySelector('input').disabled).toBe(true);
     });
   }));
-  xit('should be enabled by default', async(() => {
+  xit('should be enabled by default', waitForAsync(() => {
     component.uischema = uischema1;
     component.schema = schema1;
 

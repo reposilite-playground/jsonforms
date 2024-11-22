@@ -33,11 +33,13 @@ import {
   textBaseTest,
   textErrorTest,
   textInputEventTest,
-} from '@jsonforms/angular-test';
+} from './common';
 import { TextAreaRenderer, TextAreaRendererTester } from '../src';
 import { ControlElement, JsonSchema } from '@jsonforms/core';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { JsonFormsAngularService } from '@jsonforms/angular';
+import { initTestEnvironment } from './test';
+
+initTestEnvironment();
 
 describe('Material text field tester', () => {
   const uischema = {
@@ -68,7 +70,6 @@ const imports = [
   MatInputModule,
   NoopAnimationsModule,
   ReactiveFormsModule,
-  FlexLayoutModule,
 ];
 const providers = [JsonFormsAngularService];
 const componentUT: any = TextAreaRenderer;

@@ -24,7 +24,6 @@
 */
 import { DebugElement } from '@angular/core';
 import { ComponentFixture } from '@angular/core/testing';
-import { FlexLayoutModule } from '@angular/flex-layout';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MatError, MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
@@ -39,9 +38,12 @@ import {
   numberErrorTest,
   numberInputEventTest,
   prepareComponent,
-} from '@jsonforms/angular-test';
+} from './common';
 import { Actions, ControlElement, JsonFormsCore } from '@jsonforms/core';
 import { NumberControlRenderer, NumberControlRendererTester } from '../src';
+import { initTestEnvironment } from './test';
+
+initTestEnvironment();
 
 describe('Material number field tester', () => {
   const uischema = {
@@ -88,7 +90,6 @@ const imports = [
   MatInputModule,
   NoopAnimationsModule,
   ReactiveFormsModule,
-  FlexLayoutModule,
 ];
 const providers = [JsonFormsAngularService];
 const componentUT: any = NumberControlRenderer;

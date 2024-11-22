@@ -127,7 +127,9 @@ describe('Text cell', () => {
           uischema={uischema}
           path='name'
         />
-      </JsonFormsStateProvider>
+      </JsonFormsStateProvider>,
+      // Attach to body to get focus to work with JSDom
+      { attachTo: document.body }
     );
     const input = wrapper.find('input').getDOMNode();
     expect(document.activeElement).toBe(input);
@@ -590,5 +592,38 @@ describe('Text cell', () => {
     const input = wrapper.find('input').getDOMNode() as HTMLInputElement;
     expect(input.maxLength).toBe(defaultMaxLength);
     expect(input.size).toBe(defaultSize);
+  });
+
+  test('default type is text', () => {
+    const uischema: ControlElement = {
+      type: 'Control',
+      scope: '#/properties/name',
+    };
+    const core = initCore(fixture.schema, uischema, fixture.data);
+    wrapper = mount(
+      <JsonFormsStateProvider initState={{ core }}>
+        <TextCell schema={fixture.schema} uischema={uischema} path='name' />
+      </JsonFormsStateProvider>
+    );
+    const input = wrapper.find('input').getDOMNode() as HTMLInputElement;
+    expect(input.type).toBe('text');
+  });
+
+  test('change type to password', () => {
+    const uischema: ControlElement = {
+      type: 'Control',
+      scope: '#/properties/name',
+      options: {
+        format: 'password',
+      },
+    };
+    const core = initCore(fixture.schema, uischema, fixture.data);
+    wrapper = mount(
+      <JsonFormsStateProvider initState={{ core }}>
+        <TextCell schema={fixture.schema} uischema={uischema} path='name' />
+      </JsonFormsStateProvider>
+    );
+    const input = wrapper.find('input').getDOMNode() as HTMLInputElement;
+    expect(input.type).toBe('password');
   });
 });

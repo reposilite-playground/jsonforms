@@ -25,18 +25,22 @@
 import React, { useCallback, useState } from 'react';
 
 import {
+  CombinatorRendererProps,
   createCombinatorRenderInfos,
+  createDefaultValue,
   isAnyOfControl,
   JsonSchema,
   RankedTester,
   rankWith,
-  StatePropsOfCombinator,
 } from '@jsonforms/core';
 import { JsonFormsDispatch, withJsonFormsAnyOfProps } from '@jsonforms/react';
-import { Hidden, Tab, Tabs } from '@mui/material';
+import { Tab, Tabs } from '@mui/material';
 import CombinatorProperties from './CombinatorProperties';
+import isEmpty from 'lodash/isEmpty';
+import { TabSwitchConfirmDialog } from './TabSwitchConfirmDialog';
 
 export const MaterialAnyOfRenderer = ({
+  handleChange,
   schema,
   rootSchema,
   indexOfFittingSchema,
@@ -46,12 +50,50 @@ export const MaterialAnyOfRenderer = ({
   cells,
   uischema,
   uischemas,
-}: StatePropsOfCombinator) => {
+  id,
+  data,
+}: CombinatorRendererProps) => {
   const [selectedAnyOf, setSelectedAnyOf] = useState(indexOfFittingSchema || 0);
-  const handleChange = useCallback(
-    (_ev: any, value: number) => setSelectedAnyOf(value),
-    [setSelectedAnyOf]
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [newSelectedIndex, setNewSelectedIndex] = useState(0);
+
+  const handleClose = useCallback(
+    () => setConfirmDialogOpen(false),
+    [setConfirmDialogOpen]
   );
+
+  const handleTabChange = useCallback(
+    (_event: any, newIndex: number) => {
+      if (
+        isEmpty(data) ||
+        typeof data ===
+          typeof createDefaultValue(
+            anyOfRenderInfos[newIndex].schema,
+            rootSchema
+          )
+      ) {
+        setSelectedAnyOf(newIndex);
+      } else {
+        setNewSelectedIndex(newIndex);
+        setConfirmDialogOpen(true);
+      }
+    },
+    [setConfirmDialogOpen, setSelectedAnyOf, data]
+  );
+
+  const openNewTab = (newIndex: number) => {
+    handleChange(
+      path,
+      createDefaultValue(anyOfRenderInfos[newIndex].schema, rootSchema)
+    );
+    setSelectedAnyOf(newIndex);
+  };
+
+  const confirm = useCallback(() => {
+    openNewTab(newSelectedIndex);
+    setConfirmDialogOpen(false);
+  }, [handleChange, createDefaultValue, newSelectedIndex]);
+
   const anyOf = 'anyOf';
   const anyOfRenderInfos = createCombinatorRenderInfos(
     (schema as JsonSchema).anyOf,
@@ -62,14 +104,19 @@ export const MaterialAnyOfRenderer = ({
     uischemas
   );
 
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <Hidden xsUp={!visible}>
+    <>
       <CombinatorProperties
         schema={schema}
         combinatorKeyword={anyOf}
         path={path}
+        rootSchema={rootSchema}
       />
-      <Tabs value={selectedAnyOf} onChange={handleChange}>
+      <Tabs value={selectedAnyOf} onChange={handleTabChange}>
         {anyOfRenderInfos.map((anyOfRenderInfo) => (
           <Tab key={anyOfRenderInfo.label} label={anyOfRenderInfo.label} />
         ))}
@@ -87,7 +134,14 @@ export const MaterialAnyOfRenderer = ({
             />
           )
       )}
-    </Hidden>
+      <TabSwitchConfirmDialog
+        cancel={handleClose}
+        confirm={confirm}
+        id={'anyOf-' + id}
+        open={confirmDialogOpen}
+        handleClose={handleClose}
+      />
+    </>
   );
 };
 

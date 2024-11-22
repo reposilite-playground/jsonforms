@@ -10,7 +10,7 @@ import typescript from 'rollup-plugin-typescript2';
  * @type {import('rollup').RollupOptions}
  */
 const config = {
-  input: 'example/index.ts',
+  input: 'example/index.tsx',
   output: {
     file: 'example/dist/bundle.js',
     format: 'iife',
@@ -24,13 +24,18 @@ const config = {
     nodeResolve({ browser: true }),
     // Transform mixed because some JsonForms modules use import and require
     commonjs({ transformMixedEsModules: true }),
-    css(),
+    css({
+      output: 'bundle.css',
+    }),
     json(),
     typescript({
       tsconfigOverride: {
         compilerOptions: {
           // Do not emit typescript declarations for our bundled example app
           declaration: false,
+          // With importing the examples-react's index directly from source instead of properly building the examples-react package,
+          // the React types can not be found during the build
+          noImplicitAny: false,
         },
       },
     }),

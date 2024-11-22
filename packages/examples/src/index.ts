@@ -35,6 +35,8 @@ import * as arrayWithDetail from './examples/arrays-with-detail';
 import * as arrayWithDetailAndRule from './examples/arrays-with-detail-and-rule';
 import * as arrayWithCustomChildLabel from './examples/arrays-with-custom-element-label';
 import * as arrayWithSorting from './examples/arrays-with-sorting';
+import * as arrayWithTranslatedCustomChildLabel from './examples/arrays-with-translated-custom-element-label';
+import * as arrayWithDefaults from './examples/arrays-with-defaults';
 import * as stringArray from './examples/stringArray';
 import * as categorization from './examples/categorization';
 import * as stepper from './examples/categorization-stepper';
@@ -70,6 +72,10 @@ import * as readonly from './examples/readonly';
 import * as listWithDetailPrimitives from './examples/list-with-detail-primitives';
 import * as conditionalSchemaComposition from './examples/conditional-schema-compositions';
 import * as additionalErrors from './examples/additional-errors';
+import * as multiEnumWithLabelAndDesc from './examples/enum-multi-with-label-and-desc';
+import * as additionalProperties from './examples/additional-properties';
+import * as login from './examples/login';
+import * as string from './examples/string';
 export * from './register';
 export * from './example';
 
@@ -92,6 +98,7 @@ export {
   arrayWithDetailAndRule,
   arrayWithCustomChildLabel,
   arrayWithSorting,
+  arrayWithTranslatedCustomChildLabel,
   categorization,
   stepper,
   steppershownav,
@@ -119,10 +126,15 @@ export {
   enumExample,
   radioGroupExample,
   multiEnum,
+  multiEnumWithLabelAndDesc,
   enumInArray,
   readonly,
   listWithDetailPrimitives,
   conditionalSchemaComposition,
   additionalErrors,
+  additionalProperties,
+  login,
   issue_1884,
+  arrayWithDefaults,
+  string,
 };

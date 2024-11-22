@@ -22,7 +22,6 @@
   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
   THE SOFTWARE.
 */
-import './MatchMediaMock';
 import { ControlElement, NOT_APPLICABLE } from '@jsonforms/core';
 import MaterialTimeControl, {
   materialTimeControlTester,
@@ -225,8 +224,8 @@ describe('Material time control', () => {
     );
     const input = wrapper.find('input').first();
     (input.getDOMNode() as HTMLInputElement).value = '08:40';
-    input.simulate('change', input);
-    expect(onChangeData.data.foo).toBe('08:40:05');
+    input.simulate('blur', input);
+    expect(onChangeData.data.foo).toBe('08:40:00');
   });
 
   it('should update via action', () => {
@@ -421,7 +420,7 @@ describe('Material time control', () => {
     expect(input.props().value).toBe('02-13');
 
     (input.getDOMNode() as HTMLInputElement).value = '12-01';
-    input.simulate('change', input);
+    input.simulate('blur', input);
     expect(onChangeData.data.foo).toBe('1//12 am');
   });
 });

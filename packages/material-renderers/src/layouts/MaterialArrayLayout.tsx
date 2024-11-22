@@ -26,6 +26,7 @@ import range from 'lodash/range';
 import React, { useState, useCallback } from 'react';
 import {
   ArrayLayoutProps,
+  ArrayTranslations,
   composePaths,
   computeLabel,
   createDefaultValue,
@@ -35,10 +36,12 @@ import { ArrayLayoutToolbar } from './ArrayToolbar';
 import ExpandPanelRenderer from './ExpandPanelRenderer';
 import merge from 'lodash/merge';
 
-const MaterialArrayLayoutComponent = (props: ArrayLayoutProps) => {
+const MaterialArrayLayoutComponent = (
+  props: ArrayLayoutProps & { translations: ArrayTranslations }
+) => {
   const [expanded, setExpanded] = useState<string | boolean>(false);
   const innerCreateDefaultValue = useCallback(
-    () => createDefaultValue(props.schema),
+    () => createDefaultValue(props.schema, props.rootSchema),
     [props.schema]
   );
   const handleChange = useCallback(
@@ -65,9 +68,14 @@ const MaterialArrayLayoutComponent = (props: ArrayLayoutProps) => {
     rootSchema,
     config,
     uischemas,
+    description,
+    disableAdd,
+    disableRemove,
     translations,
   } = props;
   const appliedUiSchemaOptions = merge({}, config, props.uischema.options);
+  const doDisableAdd = disableAdd || appliedUiSchemaOptions.disableAdd;
+  const doDisableRemove = disableRemove || appliedUiSchemaOptions.disableRemove;
 
   return (
     <div>
@@ -78,11 +86,13 @@ const MaterialArrayLayoutComponent = (props: ArrayLayoutProps) => {
           required,
           appliedUiSchemaOptions.hideRequiredAsterisk
         )}
+        description={description}
         errors={errors}
         path={path}
         enabled={enabled}
         addItem={addItem}
         createDefault={innerCreateDefaultValue}
+        disableAdd={doDisableAdd}
       />
       <div>
         {data > 0 ? (
@@ -106,11 +116,12 @@ const MaterialArrayLayoutComponent = (props: ArrayLayoutProps) => {
                 childLabelProp={appliedUiSchemaOptions.elementLabelProp}
                 uischemas={uischemas}
                 translations={translations}
+                disableRemove={doDisableRemove}
               />
             );
           })
         ) : (
-          <p>No data</p>
+          <p>{translations.noDataMessage}</p>
         )}
       </div>
     </div>

@@ -36,7 +36,6 @@ import {
   AutocompleteRenderOptionState,
   FilterOptionsState,
   FormHelperText,
-  Hidden,
   TextField,
 } from '@mui/material';
 import merge from 'lodash/merge';
@@ -98,8 +97,12 @@ export const MuiAutocomplete = (
     : null;
   const secondFormHelperText = showDescription && !isValid ? errors : null;
 
+  if (!visible) {
+    return null;
+  }
+
   return (
-    <Hidden xsUp={!visible}>
+    <>
       <Autocomplete
         className={className}
         id={id}
@@ -113,7 +116,6 @@ export const MuiAutocomplete = (
           setInputValue(newInputValue);
         }}
         autoHighlight
-        autoSelect
         autoComplete
         fullWidth
         options={options}
@@ -123,14 +125,13 @@ export const MuiAutocomplete = (
           return (
             <TextField
               label={label}
-              variant={'standard'}
               type='text'
               inputProps={params.inputProps}
               inputRef={params.InputProps.ref}
               autoFocus={appliedUiSchemaOptions.focus}
               disabled={!enabled}
               {...params}
-              id={id + '-input'}
+              id={id}
               required={
                 required && !appliedUiSchemaOptions.hideRequiredAsterisk
               }
@@ -150,6 +151,6 @@ export const MuiAutocomplete = (
         {firstFormHelperText}
       </FormHelperText>
       <FormHelperText error={!isValid}>{secondFormHelperText}</FormHelperText>
-    </Hidden>
+    </>
   );
 };

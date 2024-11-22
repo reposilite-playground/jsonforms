@@ -38,6 +38,7 @@ import {
   JsonFormsRendererRegistryEntry,
   JsonFormsUISchemaRegistryEntry,
   JsonSchema,
+  Middleware,
   OwnPropsOfJsonFormsRenderer,
   removeId,
   UISchemaElement,
@@ -54,6 +55,7 @@ interface JsonFormsRendererState {
 
 export interface JsonFormsReactProps {
   onChange?(state: Pick<JsonFormsCore, 'data' | 'errors'>): void;
+  middleware?: Middleware;
 }
 
 export class JsonFormsDispatchRenderer extends React.Component<
@@ -72,6 +74,17 @@ export class JsonFormsDispatchRenderer extends React.Component<
   componentWillUnmount() {
     if (isControl(this.props.uischema)) {
       removeId(this.state.id);
+    }
+  }
+
+  componentDidUpdate(prevProps: JsonFormsProps) {
+    if (prevProps.schema !== this.props.schema) {
+      removeId(this.state.id);
+      this.setState({
+        id: isControl(this.props.uischema)
+          ? createId(this.props.uischema.scope)
+          : undefined,
+      });
     }
   }
 
@@ -203,6 +216,7 @@ export const JsonForms = (
     validationMode,
     i18n,
     additionalErrors,
+    middleware,
   } = props;
   const schemaToUse = useMemo(
     () => (schema !== undefined ? schema : Generate.jsonSchema(data)),
@@ -210,7 +224,9 @@ export const JsonForms = (
   );
   const uischemaToUse = useMemo(
     () =>
-      typeof uischema === 'object' ? uischema : Generate.uiSchema(schemaToUse),
+      typeof uischema === 'object'
+        ? uischema
+        : Generate.uiSchema(schemaToUse, undefined, undefined, schemaToUse),
     [uischema, schemaToUse]
   );
 
@@ -233,6 +249,7 @@ export const JsonForms = (
         i18n,
       }}
       onChange={onChange}
+      middleware={middleware}
     >
       <JsonFormsDispatch />
     </JsonFormsStateProvider>
