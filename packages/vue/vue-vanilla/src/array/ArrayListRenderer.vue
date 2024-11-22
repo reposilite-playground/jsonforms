@@ -11,8 +11,7 @@
       <label :class="styles.arrayList.label">
         {{ control.label }}
       </label>
-      <div v-if="description" :class="style.arrayList.description">
-        {{ description }}
+      <div v-if="description" :class="style.arrayList.description"  v-html="description">
       </div>
     </legend>
     <div
